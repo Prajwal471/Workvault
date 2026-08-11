@@ -56,6 +56,11 @@ body {
   background-size: 100% 100%, 100% 100%, 100% 100%, 44px 44px, 44px 44px, 100% 100%;
 }
 
+/* ── Dashboard — subtle radial mask behind the cards (grid stays visible) ── */
+.dashboard-bg {
+  background: radial-gradient(70% 55% at 50% 12%, rgba(168, 85, 247, 0.1), transparent 70%);
+}
+
 /* ── Typography helpers ────────────────────────────────────────────────── */
 .font-mono { font-family: var(--font-mono); }
 .font-display { font-family: var(--font-display); }

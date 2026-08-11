@@ -100,7 +100,7 @@ export default function DashboardPage() {
 
 
       {/* ── Main ─────────────────────────────────────────────────────── */}
-      <main style={{
+      <main className="dashboard-bg" style={{
         flex: 1, width: "100%", maxWidth: 1080, margin: "0 auto",
         padding: "28px 28px 48px",
         display: "flex", flexDirection: "column", gap: 20,

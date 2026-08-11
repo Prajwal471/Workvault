@@ -163,7 +163,7 @@ Live transaction calling the deployed contract — verifiable on Stellar Explore
 
 Four wallets are supported — Freighter, xBull, Albedo, and Rabet — with automatic detection of installed extensions.
 
-(![alt text](image.png))
+![alt text](image.png)
 
 ---
 

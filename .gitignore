@@ -1,0 +1,9 @@
+# Rust / Soroban build artifacts
+target/
+
+# Logs & temp
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

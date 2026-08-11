@@ -1,0 +1,144 @@
+# Stellar WorkVault
+
+> Freelance escrow with portable, on-chain reputation — built on Stellar Soroban.
+
+A client locks milestone payments into a Soroban vault; a freelancer submits proof
+of work; the client approves and funds release instantly. Every completed contract
+builds a verifiable, portable work-history record the freelancer owns — not the platform.
+
+---
+
+## Architecture
+
+```
+stellar-workvault/
+├── contracts/vault/        # Soroban smart contract (Rust)
+│   └── src/
+│       ├── lib.rs          # 7 public functions (create, deposit, submit, approve, cancel, get, count)
+│       ├── types.rs        # VaultInfo, VaultStatus structs
+│       ├── storage.rs      # Persistent + instance storage helpers
+│       ├── error.rs        # ContractError enum (6 variants)
+│       └── tests.rs        # 8 unit tests
+└── frontend/               # Next.js 14 + TypeScript + Tailwind frontend
+    ├── app/
+    │   ├── page.tsx        # Landing — connect wallet
+    │   └── dashboard/      # Main app (balance, send XLM, vault creation)
+    ├── components/         # WalletBar, BalanceCard, SendXLMForm, CreateVaultForm ...
+    ├── context/            # WalletContext — global wallet state
+    └── lib/                # freighter.ts, stellar.ts, contracts.ts
+```
+
+---
+
+## Quickstart
+
+### Prerequisites
+
+| Tool | Version |
+|---|---|
+| Rust | stable (rustup) |
+| `wasm32v1-none` target | `rustup target add wasm32v1-none` |
+| Stellar CLI | `cargo install --locked stellar-cli --features opt` |
+| Node.js | ≥ 18 |
+| Freighter wallet | Browser extension |
+
+### 1 — Run contract tests
+
+```bash
+cargo test -p workvault-vault
+```
+
+### 2 — Build contract WASM
+
+```bash
+cargo build -p workvault-vault --target wasm32v1-none --release
+```
+
+Output: `target/wasm32v1-none/release/workvault_vault.wasm`
+
+### 3 — Deploy to Testnet
+
+```bash
+# Fund a new testnet identity (one-time)
+stellar keys generate --global deployer --network testnet --fund
+
+# Deploy
+stellar contract deploy \
+  --wasm target/wasm32v1-none/release/workvault_vault.wasm \
+  --source deployer \
+  --network testnet
+
+# Copy the printed Contract ID into frontend/.env.local
+```
+
+### 4 — Run the frontend
+
+```bash
+cd frontend
+cp .env.local.example .env.local
+# Edit .env.local → paste your Contract ID
+npm install
+npm run dev
+```
+
+Visit: http://localhost:3000
+
+---
+
+## Contract Functions
+
+| Function | Access | Description |
+|---|---|---|
+| `create_vault(client, freelancer, token, amount)` | Client | Creates vault, returns vault_id |
+| `deposit_funds(vault_id, client)` | Client | Locks tokens into contract |
+| `submit_deliverable(vault_id, freelancer, proof_url)` | Freelancer | Submits proof, sets InReview |
+| `approve_and_release(vault_id, client)` | Client | Releases funds to freelancer |
+| `cancel_vault(vault_id, client)` | Client (pre-fund) | Cancels vault, no refund needed |
+| `get_vault(vault_id)` | Public | Returns VaultInfo |
+| `get_vault_count()` | Public | Returns total vaults created |
+
+---
+
+## Level 1 Checklist ✅
+
+- [x] Freighter wallet connected on Stellar Testnet
+- [x] Wallet connect / disconnect
+- [x] XLM balance displayed
+- [x] Send XLM transaction → success/failure + tx hash shown
+- [x] Error handling: wallet missing, tx rejected, network mismatch
+
+## Level 2 Checklist ✅
+
+- [x] 3 error types: `WalletNotConnected`, `TransactionRejected`, `ContractCallFailed`
+- [x] Contract deployed on Testnet (see deployed ID below)
+- [x] Contract called from frontend (`create_vault`)
+- [x] Transaction status visible (Pending → Success/Failed)
+- [x] Multi-wallet: Freighter (sign) + Watch-only (any address)
+- [x] Real-time: polls transaction status until finalised
+
+---
+
+## Deployed Contract
+
+| Network | Contract ID |
+|---|---|
+| Testnet | *(paste your deployed contract ID here)* |
+
+---
+
+## Commit History
+
+```
+feat: scaffold Soroban vault contract with core types and storage
+feat: implement wallet connect, XLM balance, and send transaction (Level 1)
+feat: integrate vault contract with frontend — create vault, 3 error types (Level 2)
+```
+
+---
+
+## See Also
+
+- [DECISIONS.md](./DECISIONS.md) — design choices and reasoning
+- [Stellar Docs](https://developers.stellar.org/)
+- [Soroban SDK Docs](https://docs.rs/soroban-sdk)
+- [Freighter API Docs](https://docs.freighter.app/)

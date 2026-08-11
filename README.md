@@ -8,6 +8,21 @@ builds a verifiable, portable work-history record the freelancer owns — not th
 
 ---
 
+## Tools & Technologies
+
+| Category | Technology |
+|---|---|
+| Smart contract | Rust · Soroban SDK (Stellar's WASM smart-contract platform) |
+| Contract tooling | Stellar CLI (`stellar contract`), Stellar RPC, Soroban token interface |
+| Frontend | Next.js 14 (App Router) · React 18 · TypeScript · Tailwind CSS |
+| Stellar SDK | `@stellar/stellar-sdk` (RPC client, transactions, XDR) |
+| Wallets | Freighter · xBull · Albedo · Rabet |
+| Network | Stellar Testnet (Soroban) — Horizon + Soroban RPC |
+| Testing | Soroban unit tests with `test_snapshots`, `cargo test` |
+| Version control | Git · GitHub |
+
+---
+
 ## Architecture
 
 ```

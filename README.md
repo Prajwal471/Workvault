@@ -122,16 +122,52 @@ Visit: http://localhost:3000
 
 | Network | Contract ID |
 |---|---|
-| Testnet | *(paste your deployed contract ID here)* |
+| Testnet | `CCUDDA4BJABILGHSV4FDPM3575P7CAL4QAYSKR4N2LQ37F6EJJHQEK2B` |
+
+[View on StellarExpert](https://stellar.expert/explorer/testnet/contract/CCUDDA4BJABILGHSV4FDPM3575P7CAL4QAYSKR4N2LQ37F6EJJHQEK2B)
+
+---
+
+## On-chain Proof
+
+Live transaction calling the deployed contract — verifiable on Stellar Explorer:
+
+| | |
+|---|---|
+| Function | `create_vault(client, freelancer, token, amount)` |
+| Transaction hash | `d33f6990178296046853554007e74b3a7f941f7ec8e6dc7373a95f725a00f8a7` |
+| Ledger | 4089944 |
+| Time | 2026-08-11 17:53:21 UTC |
+
+- [StellarExpert — transaction](https://stellar.expert/explorer/testnet/tx/d33f6990178296046853554007e74b3a7f941f7ec8e6dc7373a95f725a00f8a7)
+- [Horizon — transaction](https://horizon-testnet.stellar.org/transactions/d33f6990178296046853554007e74b3a7f941f7ec8e6dc7373a95f725a00f8a7)
+
+---
+
+## Wallet Options
+
+Four wallets are supported — Freighter, xBull, Albedo, and Rabet — with automatic detection of installed extensions.
+
+![Wallet options](frontend/public/wallet-options.png)
 
 ---
 
 ## Commit History
 
 ```
-feat: scaffold Soroban vault contract with core types and storage
-feat: implement wallet connect, XLM balance, and send transaction (Level 1)
-feat: integrate vault contract with frontend — create vault, 3 error types (Level 2)
+chore: scaffold Next.js + Tailwind frontend
+feat: add WorkVault Soroban vault contract
+test: cover vault contract with unit tests and snapshots
+feat: add Stellar testnet deploy script
+feat: add Stellar SDK helpers for balance, sends, and tx polling
+feat: integrate Freighter, xBull, Albedo, and Rabet wallets
+feat: add wallet connect/disconnect with session-aware context
+feat: call WorkVault contract from the frontend
+feat: add escrow action forms (send, create, deposit, deliverable, release)
+feat: stream contract events in real time
+feat: build dashboard and landing experience with shared UI primitives
+docs: document project, decisions, and agent rules
+chore: ignore frontend build artifacts and env files
 ```
 
 ---

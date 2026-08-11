@@ -78,7 +78,7 @@ export default function LandingPage() {
     wallet, isConnecting,
     freighterInstalled, xbullInstalled, albedoAvailable, rabetInstalled,
     connect, connectXBullWallet, connectAlbedoWallet, connectRabetWallet,
-    error, clearError,
+    error, clearError, disconnect,
   } = useWallet();
 
   // Prevent SSR flash: don't render extension-dependent UI until mounted
@@ -106,26 +106,43 @@ export default function LandingPage() {
 
           {/* ── Nav CTA ── */}
           {wallet ? (
-            <Link href="/dashboard">
-                  <button
-                    id="nav-dashboard-btn"
-                    className="btn-sweep"
-                    onClick={() => window.location.href = "/dashboard"}
-                    style={{
-                      background: "linear-gradient(135deg,#a855f7,#c026d3)",
-                      border: "none", borderRadius: 14, padding: "16px 34px",
-                      color: "#fff", fontSize: 16, fontWeight: 800, cursor: "pointer",
-                      boxShadow: "0 0 32px rgba(168,85,247,0.5)",
-                      letterSpacing: "-0.01em",
-                      display: "flex", alignItems: "center", gap: 10,
-                      transition: "opacity 0.2s, box-shadow 0.2s, transform 0.15s ease",
-                    }}
-                onMouseEnter={e => (e.currentTarget.style.opacity = "0.88")}
-                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Link href="/dashboard">
+                    <button
+                      id="nav-dashboard-btn"
+                      className="btn-sweep"
+                      onClick={() => window.location.href = "/dashboard"}
+                      style={{
+                        background: "linear-gradient(135deg,#a855f7,#c026d3)",
+                        border: "none", borderRadius: 14, padding: "16px 34px",
+                        color: "#fff", fontSize: 16, fontWeight: 800, cursor: "pointer",
+                        boxShadow: "0 0 32px rgba(168,85,247,0.5)",
+                        letterSpacing: "-0.01em",
+                        display: "flex", alignItems: "center", gap: 10,
+                        transition: "opacity 0.2s, box-shadow 0.2s, transform 0.15s ease",
+                      }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = "0.88")}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                >
+                  Dashboard →
+                </button>
+              </Link>
+              <button
+                id="nav-disconnect-btn"
+                onClick={disconnect}
+                style={{
+                  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)",
+                  borderRadius: 14, padding: "14px 22px",
+                  color: "#94a3b8", fontSize: 14, fontWeight: 700,
+                  cursor: "pointer", transition: "color 0.15s, border-color 0.15s",
+                  whiteSpace: "nowrap",
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "#f87171"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(248,113,113,0.35)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "#94a3b8"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.12)"; }}
               >
-                Dashboard →
+                Disconnect
               </button>
-            </Link>
+            </div>
           ) : (
             <button
               id="nav-connect-btn"

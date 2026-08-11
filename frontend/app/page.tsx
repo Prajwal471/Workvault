@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useWallet } from "@/context/WalletContext";
 import { WalletPicker } from "@/components/WalletPicker";
+import { Logo } from "@/components/Logo";
 import { Icon, IconName } from "@/components/ui/Icon";
 
 const FEATURES: { id: string; num: string; icon: IconName; level: string; title: string; desc: string }[] = [
@@ -101,24 +102,7 @@ export default function LandingPage() {
           style={{ height: "76px", paddingLeft: 52, paddingRight: 32 }}
         >
           {/* ── Logo ── */}
-          <div className="flex items-center gap-3.5">
-            <div
-              style={{
-                width: 48, height: 48, borderRadius: 14,
-                background: "linear-gradient(135deg, #a855f7, #c026d3)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontWeight: 900, fontSize: 15, color: "#fff",
-                boxShadow: "0 0 24px rgba(168,85,247,0.4)",
-                flexShrink: 0,
-              }}
-            >
-              SV
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
-              <span style={{ fontWeight: 800, fontSize: 24, color: "#fff", letterSpacing: "-0.02em", fontFamily: "var(--font-display)" }}>WorkVault</span>
-              <span style={{ fontWeight: 600, fontSize: 10, color: "#c084fc", letterSpacing: "0.15em", marginTop: 3 }}>TESTNET</span>
-            </div>
-          </div>
+          <Logo tagline="TESTNET" />
 
           {/* ── Nav CTA ── */}
           {wallet ? (

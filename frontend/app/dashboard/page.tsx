@@ -11,6 +11,7 @@ import { DepositFundsForm } from "@/components/DepositFundsForm";
 import { SubmitDeliverableForm } from "@/components/SubmitDeliverableForm";
 import { ApproveReleaseForm } from "@/components/ApproveReleaseForm";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { Logo } from "@/components/Logo";
 import { ToastContainer, useToast } from "@/components/ui/Toast";
 import { Icon } from "@/components/ui/Icon";
 import { Sparkline } from "@/components/ui/Sparkline";
@@ -81,18 +82,7 @@ export default function DashboardPage() {
         }}>
           {/* Left — logo + brand */}
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }}>
-            <div style={{
-              width: 44, height: 44, borderRadius: 13,
-              background: "linear-gradient(135deg,#a855f7,#c026d3)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              color: "#fff", fontSize: 14, fontWeight: 900,
-              boxShadow: "0 0 20px rgba(168,85,247,0.4)",
-              flexShrink: 0,
-            }}>SV</div>
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
-              <span style={{ fontWeight: 800, fontSize: 24, color: "#fff", letterSpacing: "-0.02em", fontFamily: "var(--font-display)" }}>WorkVault</span>
-              <span style={{ fontSize: 10, color: "#c084fc", fontWeight: 600, letterSpacing: "0.12em", marginTop: 3 }}>DASHBOARD</span>
-            </div>
+            <Logo size={44} tagline="DASHBOARD" />
           </Link>
 
           {/* Right — Testnet badge */}

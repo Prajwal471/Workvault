@@ -64,6 +64,7 @@ export default function DashboardPage() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <div className="dashboard-bg" />
 
       {/* ── Top nav ─────────────────────────────────────────────────── */}
       <header style={{
@@ -100,7 +101,7 @@ export default function DashboardPage() {
 
 
       {/* ── Main ─────────────────────────────────────────────────────── */}
-      <main className="dashboard-bg" style={{
+      <main style={{
         flex: 1, width: "100%", maxWidth: 1080, margin: "0 auto",
         padding: "28px 28px 48px",
         display: "flex", flexDirection: "column", gap: 20,

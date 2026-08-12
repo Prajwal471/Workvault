@@ -18,7 +18,7 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import { signWithFreighter } from "./freighter";
-import { submitAndPollSoroban, TxResult } from "./stellar";
+import { submitAndPollSoroban, TxResult, TxStage } from "./stellar";
 
 // ── Config ─────────────────────────────────────────────────────────────────
 
@@ -116,7 +116,8 @@ async function invokeContract<T = void>(
   publicKey: string,
   method: string,
   args: xdr.ScVal[],
-  parseResult?: (val: xdr.ScVal) => T
+  parseResult?: (val: xdr.ScVal) => T,
+  onStage?: (stage: TxStage) => void
 ): Promise<ContractCallResult<T>> {
   // Error type 1: WalletNotConnected
   if (!publicKey) {
@@ -154,13 +155,14 @@ async function invokeContract<T = void>(
     }
 
     // Error type 2: TransactionRejected
+    onStage?.("sign");
     const signResult = await signWithFreighter(prepared.toXDR(), NETWORK_PASSPHRASE);
     if (!signResult.ok) {
       return { ok: false, error: `TransactionRejected: ${signResult.error}` };
     }
 
     // Submit + poll
-    const txResult = await submitAndPollSoroban(signResult.signedXdr, NETWORK_PASSPHRASE);
+    const txResult = await submitAndPollSoroban(signResult.signedXdr, NETWORK_PASSPHRASE, onStage);
     if (!txResult.ok) {
       return { ok: false, hash: txResult.hash, error: txResult.error };
     }
@@ -198,7 +200,8 @@ export async function createVault(
   callerPublicKey: string,
   freelancerAddress: string,
   tokenAddress: string,
-  amountStroops: bigint
+  amountStroops: bigint,
+  onStage?: (stage: TxStage) => void
 ): Promise<ContractCallResult<bigint>> {
   return invokeContract<bigint>(
     callerPublicKey,
@@ -212,7 +215,8 @@ export async function createVault(
     (val) => {
       const native = scValToNative(val);
       return typeof native === "bigint" ? native : BigInt(native as any);
-    }
+    },
+    onStage
   );
 }
 
@@ -317,7 +321,8 @@ export async function getVaultCount(): Promise<number> {
  */
 export async function depositFunds(
   callerPublicKey: string,
-  vaultId: bigint
+  vaultId: bigint,
+  onStage?: (stage: TxStage) => void
 ): Promise<ContractCallResult> {
   return invokeContract(
     callerPublicKey,
@@ -325,7 +330,9 @@ export async function depositFunds(
     [
       nativeToScVal(vaultId, { type: "u64" }),
       new Address(callerPublicKey).toScVal(),
-    ]
+    ],
+    undefined,
+    onStage
   );
 }
 
@@ -336,7 +343,8 @@ export async function depositFunds(
 export async function submitDeliverable(
   freelancerPublicKey: string,
   vaultId: bigint,
-  proofUrl: string
+  proofUrl: string,
+  onStage?: (stage: TxStage) => void
 ): Promise<ContractCallResult> {
   return invokeContract(
     freelancerPublicKey,
@@ -345,7 +353,9 @@ export async function submitDeliverable(
       nativeToScVal(vaultId, { type: "u64" }),
       new Address(freelancerPublicKey).toScVal(),
       nativeToScVal(proofUrl, { type: "string" }),
-    ]
+    ],
+    undefined,
+    onStage
   );
 }
 
@@ -355,7 +365,8 @@ export async function submitDeliverable(
  */
 export async function approveAndRelease(
   clientPublicKey: string,
-  vaultId: bigint
+  vaultId: bigint,
+  onStage?: (stage: TxStage) => void
 ): Promise<ContractCallResult> {
   return invokeContract(
     clientPublicKey,
@@ -363,6 +374,8 @@ export async function approveAndRelease(
     [
       nativeToScVal(vaultId, { type: "u64" }),
       new Address(clientPublicKey).toScVal(),
-    ]
+    ],
+    undefined,
+    onStage
   );
 }

@@ -57,15 +57,15 @@ export function Logo({ size = 48, tagline, variant = "dark" }: LogoProps) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: "0 0 24px rgba(168,85,247,0.35)",
+          boxShadow: "0 0 24px rgba(28,51,40,0.35)",
           flexShrink: 0,
         }}
       >
         <svg width={size * 0.82} height={size * 0.82} viewBox="0 0 64 64" fill="none" aria-hidden>
-          <path d={MONOGRAM} fill="#A855F7" />
+          <path d={MONOGRAM} fill="#7FBF9D" />
           <path d={DIAMOND} fill="#09090B" />
-          <circle cx="32" cy="26.5" r="2" fill="#A855F7" />
-          <path d={KEYHOLE} fill="#A855F7" />
+          <circle cx="32" cy="26.5" r="2" fill="#7FBF9D" />
+          <path d={KEYHOLE} fill="#7FBF9D" />
         </svg>
       </div>
       <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
@@ -85,7 +85,7 @@ export function Logo({ size = 48, tagline, variant = "dark" }: LogoProps) {
             style={{
               fontWeight: 600,
               fontSize: 10,
-              color: "#c084fc",
+              color: "#7FBF9D",
               letterSpacing: "0.15em",
               marginTop: 3,
             }}

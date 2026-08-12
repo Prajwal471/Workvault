@@ -4,7 +4,7 @@
    only landing-specific page wrapper + button styles.                       */
 
 .landing {
-  background: var(--paper);
+  background: transparent;
   color: var(--ink);
   min-height: 100dvh;
   font-family: var(--font-sans);

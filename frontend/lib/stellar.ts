@@ -33,6 +33,9 @@ const NETWORK_PASSPHRASE =
 
 export type TxStatus = "pending" | "success" | "failed";
 
+/** Progress through the transaction lifecycle, surfaced to the UI stepper. */
+export type TxStage = "sign" | "broadcast" | "confirmed";
+
 export interface TxResult {
   ok: boolean;
   hash?: string;
@@ -75,7 +78,8 @@ export async function sendXLM(
   fromPublicKey: string,
   toPublicKey: string,
   amountXLM: string,
-  networkPassphrase: string = NETWORK_PASSPHRASE
+  networkPassphrase: string = NETWORK_PASSPHRASE,
+  onStage?: (stage: TxStage) => void
 ): Promise<TxResult> {
   // Error type 1: wallet not connected
   if (!fromPublicKey) {
@@ -108,6 +112,7 @@ export async function sendXLM(
       .build();
 
     // Error type 2: transaction rejected by user
+    onStage?.("sign");
     const signResult = await signWithFreighter(tx.toXDR(), networkPassphrase);
     if (!signResult.ok) {
       return {
@@ -130,6 +135,7 @@ export async function sendXLM(
       const submitData = await submitRes.json();
 
       if (submitRes.ok) {
+        onStage?.("confirmed");
         return {
           ok: true,
           hash: submitData.hash,
@@ -209,7 +215,8 @@ export async function pollTransactionStatus(
  */
 export async function submitAndPollSoroban(
   signedXdr: string,
-  networkPassphrase: string = NETWORK_PASSPHRASE
+  networkPassphrase: string = NETWORK_PASSPHRASE,
+  onStage?: (stage: TxStage) => void
 ): Promise<TxResult> {
   try {
     const server = new rpc.Server(RPC_URL);
@@ -237,12 +244,15 @@ export async function submitAndPollSoroban(
 
       const hash = sendResult.hash;
 
+      onStage?.("broadcast");
+
       // Poll for finalisation
       for (let i = 0; i < 15; i++) {
         await new Promise((r) => setTimeout(r, 2000));
         const txInfo = await server.getTransaction(hash);
 
         if (txInfo.status === rpc.Api.GetTransactionStatus.SUCCESS) {
+          onStage?.("confirmed");
           return { ok: true, hash, status: "success" };
         }
         if (txInfo.status === rpc.Api.GetTransactionStatus.FAILED) {

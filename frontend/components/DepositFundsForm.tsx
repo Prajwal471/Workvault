@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import { useWallet } from "@/context/WalletContext";
 import { depositFunds, getVault, VaultInfo } from "@/lib/contracts";
+import { TxStage } from "@/lib/stellar";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { TxStepper } from "@/components/ui/TxStepper";
 
 interface DepositFundsFormProps {
   onSuccess?: (hash: string) => void;
@@ -25,6 +27,7 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
   const [txHash, setTxHash]             = useState<string | null>(null);
   const [errorMsg, setErrorMsg]         = useState<string | null>(null);
   const [idError, setIdError]           = useState("");
+  const [stage, setStage]               = useState<TxStage | null>(null);
 
   // ── Step 1: look up the vault ──────────────────────────────────────────────
   const handleLookup = async (e: React.FormEvent) => {
@@ -55,8 +58,9 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
     setFormState("depositing");
     setErrorMsg(null);
     setTxHash(null);
+    setStage(null);
 
-    const result = await depositFunds(wallet.publicKey, vault.id);
+    const result = await depositFunds(wallet.publicKey, vault.id, (s) => setStage(s));
 
     if (!result.ok) {
       setFormState("failed");
@@ -80,11 +84,11 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
   const xlmAmount = vault ? Number(vault.amount) / Number(STROOP) : 0;
 
   const statusColor: Record<string, { bg: string; border: string; text: string; label: string }> = {
-    Created:   { bg: "rgba(99,102,241,0.1)",  border: "rgba(99,102,241,0.3)",  text: "#818cf8", label: "Ready to fund" },
-    Funded:    { bg: "rgba(34,197,94,0.1)",   border: "rgba(34,197,94,0.3)",   text: "#4ade80", label: "Already funded" },
-    InReview:  { bg: "rgba(251,191,36,0.1)",  border: "rgba(251,191,36,0.3)",  text: "#fbbf24", label: "In review" },
-    Completed: { bg: "rgba(34,211,238,0.1)",  border: "rgba(34,211,238,0.3)",  text: "#22d3ee", label: "Completed" },
-    Cancelled: { bg: "rgba(248,113,113,0.1)", border: "rgba(248,113,113,0.3)", text: "#f87171", label: "Cancelled" },
+    Created:   { bg: "#f7f3ea",   border: "#dcd3c1",                  text: "#3e2f21", label: "Ready to fund" },
+    Funded:    { bg: "#e7f2ec",   border: "rgba(28,51,40,0.3)",       text: "#1c3328", label: "Already funded" },
+    InReview:  { bg: "#fbf3e0",   border: "#d9bc7a",                  text: "#8a5c1f", label: "In review" },
+    Completed: { bg: "#e7f2ec",   border: "rgba(15,31,24,0.35)",      text: "#0f1f18", label: "Completed" },
+    Cancelled: { bg: "#fbf3f0",   border: "#e3c7c0",                  text: "#8a3a2a", label: "Cancelled" },
   };
   const sc = vault ? (statusColor[vault.status] ?? statusColor.Created) : null;
 
@@ -92,7 +96,7 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
 
   return (
     <Card id="deposit-funds-form-card">
-      <CardHeader icon={<Icon name="deposit" size={18} />} accent="#a855f7" title="Deposit Funds" subtitle="Level 2 · Lock XLM into escrow" />
+      <CardHeader icon={<Icon name="deposit" size={18} />} accent="var(--green)" title="Deposit Funds" subtitle="Level 2 · Lock XLM into escrow" />
 
       {/* Step 1 — Vault lookup */}
       {formState !== "success" && (
@@ -118,10 +122,10 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
               disabled={busy || !vaultIdInput}
               style={{
                 flexShrink: 0,
-                background: busy || !vaultIdInput ? "rgba(255,255,255,0.06)" : "rgba(168,85,247,0.15)",
-                border: "1px solid rgba(168,85,247,0.35)",
+                background: busy || !vaultIdInput ? "var(--cream-soft)" : "rgba(28,51,40,0.08)",
+                border: "1px solid rgba(28,51,40,0.28)",
                 borderRadius: 10, padding: "11px 18px",
-                color: busy || !vaultIdInput ? "#475569" : "#c084fc",
+                color: busy || !vaultIdInput ? "var(--muted-soft)" : "var(--green)",
                 fontSize: 13, fontWeight: 700,
                 cursor: busy || !vaultIdInput ? "not-allowed" : "pointer",
                 display: "flex", alignItems: "center", gap: 6,
@@ -142,7 +146,7 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
 
       {/* Error banner */}
       {errorMsg && formState !== "failed" && (
-        <p style={{ fontSize: 13, color: "#f87171" }}>{errorMsg}</p>
+        <p style={{ fontSize: 13, color: "#8a3a2a" }}>{errorMsg}</p>
       )}
 
       {/* Step 2 — Vault preview + deposit */}
@@ -150,12 +154,12 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
         <div style={{ display: "flex", flexDirection: "column", gap: 14, flexGrow: 1 }}>
           {/* Vault info card */}
           <div style={{
-            borderRadius: 12, border: "1px solid rgba(255,255,255,0.07)",
-            background: "rgba(255,255,255,0.03)", padding: "14px 16px",
+            borderRadius: 12, border: "1px solid var(--cream-line)",
+            background: "var(--cream-soft)", padding: "14px 16px",
             display: "flex", flexDirection: "column", gap: 10,
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#cbd5e1" }}>
+              <span className="ledger-mono" style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>
                 Vault #{String(vault.id)}
               </span>
               {sc && (
@@ -174,10 +178,10 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
               { label: "Client", value: `${vault.client.slice(0, 8)}…${vault.client.slice(-6)}`, mono: true },
             ].map(row => (
               <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 11, color: "#475569" }}>{row.label}</span>
+                <span className="ledger-mono" style={{ fontSize: 11, color: "var(--muted)" }}>{row.label}</span>
                 <span style={{
-                  fontSize: 12, color: "#94a3b8",
-                  fontFamily: row.mono ? "monospace" : "inherit",
+                  fontSize: 12, color: "var(--brown)",
+                  fontFamily: row.mono ? "var(--font-mono)" : "inherit",
                 }}>
                   {row.value}
                 </span>
@@ -189,22 +193,25 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
           {vault.status !== "Created" && (
             <div style={{
               padding: "10px 14px", borderRadius: 10,
-              background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)",
-              color: "#fbbf24", fontSize: 13,
+              background: "#fbf3e0", border: "1px solid #d9bc7a",
+              color: "#8a5c1f", fontSize: 13,
             }}>
-              ⚠ This vault is <strong>{vault.status}</strong> — only <code style={{ fontSize: 11 }}>Created</code> vaults can be funded.
+              ⚠ This vault is <strong>{vault.status}</strong> — only <code className="ledger-mono" style={{ fontSize: 11 }}>Created</code> vaults can be funded.
             </div>
           )}
 
           {vault.status === "Created" && wallet?.publicKey !== vault.client && (
             <div style={{
               padding: "10px 14px", borderRadius: 10,
-              background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)",
-              color: "#f87171", fontSize: 13,
+              background: "#fbf3f0", border: "1px solid #e3c7c0",
+              color: "#8a3a2a", fontSize: 13,
             }}>
-              ⚠ Only the vault's client (<code style={{ fontFamily: "monospace", fontSize: 11 }}>{vault.client.slice(0,8)}…</code>) can deposit.
+              ⚠ Only the vault&apos;s client (<code className="ledger-mono" style={{ fontSize: 11 }}>{vault.client.slice(0,8)}…</code>) can deposit.
             </div>
           )}
+
+          {/* Tx progress stepper */}
+          {formState === "depositing" && <TxStepper stage={stage} />}
 
           {/* Deposit button */}
           {vault.status === "Created" && (
@@ -216,10 +223,13 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
               style={{
                 width: "100%",
                 background: busy || !wallet || wallet.mode === "watch" || wallet.publicKey !== vault.client
-                  ? "rgba(168,85,247,0.2)"
-                  : "linear-gradient(135deg,#a855f7,#c026d3)",
-                border: "none", borderRadius: 12,
-                padding: 14, color: "#fff", fontSize: 15, fontWeight: 700,
+                  ? "var(--cream-line)"
+                  : "var(--green)",
+                border: "1px solid var(--green-deep)", borderRadius: 12,
+                padding: 14, color: busy || !wallet || wallet.mode === "watch" || wallet.publicKey !== vault.client
+                  ? "var(--muted-soft)"
+                  : "var(--brand-cream)",
+                fontSize: 15, fontWeight: 700,
                 cursor: busy || !wallet || wallet.mode === "watch" || wallet.publicKey !== vault.client
                   ? "not-allowed" : "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
@@ -229,8 +239,8 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
             >
               {formState === "depositing" && (
                 <svg style={{ width: 16, height: 16, animation: "spin 1s linear infinite" }} viewBox="0 0 24 24" fill="none">
-                  <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="white" strokeWidth="4"/>
-                  <path style={{ opacity: 0.75 }} fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                  <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                 </svg>
               )}
               {formState === "depositing"
@@ -245,9 +255,9 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13,
                 fontWeight: 600, padding: "8px 14px", borderRadius: 8,
-                background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.25)", color: "#f87171",
+                background: "#fbf3f0", border: "1px solid #e3c7c0", color: "#8a3a2a",
               }}>✕ Deposit failed</div>
-              <p style={{ fontSize: 13, color: "#f87171", wordBreak: "break-word" }}>{errorMsg}</p>
+              <p style={{ fontSize: 13, color: "#8a3a2a", wordBreak: "break-word" }}>{errorMsg}</p>
             </div>
           )}
         </div>
@@ -259,22 +269,22 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13,
             fontWeight: 600, padding: "10px 16px", borderRadius: 10,
-            background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", color: "#4ade80",
+            background: "#e7f2ec", border: "1px solid rgba(28,51,40,0.3)", color: "var(--green)",
           }}>✓ Funds locked in escrow!</div>
 
-          <p style={{ fontSize: 13, color: "#94a3b8" }}>
-            <strong style={{ color: "#4ade80" }}>{xlmAmount.toLocaleString()} XLM</strong> is now held in Vault #{String(vault?.id)}.
+          <p style={{ fontSize: 13, color: "var(--muted)" }}>
+            <strong style={{ color: "var(--green)" }}>{xlmAmount.toLocaleString()} XLM</strong> is now held in Vault #{String(vault?.id)}.
             The freelancer can now submit their deliverable.
           </p>
 
           {txHash && (
             <div style={{ fontSize: 11, display: "flex", gap: 6, alignItems: "flex-start" }}>
-              <span style={{ color: "#475569", flexShrink: 0, marginTop: 1 }}>Tx:</span>
+              <span className="ledger-mono" style={{ color: "var(--muted-soft)", flexShrink: 0, marginTop: 1 }}>Tx:</span>
               <a
                 id="deposit-tx-hash-link"
                 href={`https://stellar.expert/explorer/testnet/tx/${txHash}`}
                 target="_blank" rel="noopener noreferrer"
-                style={{ color: "#c084fc", fontFamily: "monospace", wordBreak: "break-all", textDecoration: "underline" }}
+                style={{ color: "var(--green)", fontFamily: "var(--font-mono)", wordBreak: "break-all", textDecoration: "underline" }}
               >
                 {txHash}
               </a>
@@ -285,8 +295,8 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
             onClick={reset}
             style={{
               alignSelf: "flex-start",
-              background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: 10, padding: "8px 16px", color: "#64748b",
+              background: "var(--paper)", border: "1px solid var(--cream-line)",
+              borderRadius: 10, padding: "8px 16px", color: "var(--muted)",
               fontSize: 13, fontWeight: 600, cursor: "pointer",
             }}
           >

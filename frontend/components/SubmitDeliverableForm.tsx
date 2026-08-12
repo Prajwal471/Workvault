@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import { useWallet } from "@/context/WalletContext";
 import { submitDeliverable, getVault, VaultInfo } from "@/lib/contracts";
+import { TxStage } from "@/lib/stellar";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { TxStepper } from "@/components/ui/TxStepper";
 
 interface SubmitDeliverableFormProps {
   onSuccess?: (hash: string) => void;
@@ -25,6 +27,7 @@ export function SubmitDeliverableForm({ onSuccess, onError }: SubmitDeliverableF
   const [errorMsg, setErrorMsg]         = useState<string | null>(null);
   const [idError, setIdError]           = useState("");
   const [urlError, setUrlError]         = useState("");
+  const [stage, setStage]               = useState<TxStage | null>(null);
 
   const handleLookup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,8 +64,8 @@ export function SubmitDeliverableForm({ onSuccess, onError }: SubmitDeliverableF
     }
     setUrlError("");
 
-    setFormState("submitting"); setErrorMsg(null); setTxHash(null);
-    const result = await submitDeliverable(wallet.publicKey, vault.id, url);
+    setFormState("submitting"); setErrorMsg(null); setTxHash(null); setStage(null);
+    const result = await submitDeliverable(wallet.publicKey, vault.id, url, (s) => setStage(s));
 
     if (!result.ok) {
       setFormState("failed");
@@ -84,7 +87,7 @@ export function SubmitDeliverableForm({ onSuccess, onError }: SubmitDeliverableF
 
   return (
     <Card id="submit-deliverable-card">
-      <CardHeader icon={<Icon name="file" size={18} />} accent="#a855f7" title="Submit Deliverable" subtitle="Freelancer · Submit proof of work" />
+      <CardHeader icon={<Icon name="file" size={18} />} accent="var(--green)" title="Submit Deliverable" subtitle="Freelancer · Submit proof of work" />
 
       {formState !== "success" && (
         <>
@@ -100,10 +103,13 @@ export function SubmitDeliverableForm({ onSuccess, onError }: SubmitDeliverableF
               />
             </div>
             <button type="submit" disabled={busy || !vaultIdInput} style={{
-              flexShrink: 0, background: busy || !vaultIdInput ? "rgba(255,255,255,0.04)" : "rgba(168,85,247,0.15)",
-              border: "1px solid rgba(168,85,247,0.3)", borderRadius: 10, padding: "11px 18px",
-              color: busy || !vaultIdInput ? "#475569" : "#c084fc",
-              fontSize: 13, fontWeight: 700, cursor: busy || !vaultIdInput ? "not-allowed" : "pointer",
+              flexShrink: 0,
+              background: busy || !vaultIdInput ? "var(--cream-soft)" : "rgba(28,51,40,0.08)",
+              border: "1px solid rgba(28,51,40,0.28)",
+              borderRadius: 10, padding: "11px 18px",
+              color: busy || !vaultIdInput ? "var(--muted-soft)" : "var(--green)",
+              fontSize: 13, fontWeight: 700,
+              cursor: busy || !vaultIdInput ? "not-allowed" : "pointer",
               display: "flex", alignItems: "center", gap: 6,
             }}>
               {formState === "looking-up" ? (
@@ -115,7 +121,7 @@ export function SubmitDeliverableForm({ onSuccess, onError }: SubmitDeliverableF
             </button>
           </form>
 
-          {errorMsg && formState !== "failed" && <p style={{ fontSize: 13, color: "#f87171" }}>{errorMsg}</p>}
+          {errorMsg && formState !== "failed" && <p style={{ fontSize: 13, color: "#8a3a2a" }}>{errorMsg}</p>}
 
           {/* Step 2: proof URL + guards */}
           {vault && (
@@ -124,26 +130,26 @@ export function SubmitDeliverableForm({ onSuccess, onError }: SubmitDeliverableF
               <div style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 padding: "10px 14px", borderRadius: 10,
-                background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)",
+                background: "var(--cream-soft)", border: "1px solid var(--cream-line)",
               }}>
-                <span style={{ fontSize: 12, color: "#64748b" }}>Vault #{String(vault.id)}</span>
+                <span className="ledger-mono" style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>Vault #{String(vault.id)}</span>
                 <span style={{
                   fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 999,
-                  background: vault.status === "Funded" ? "rgba(34,197,94,0.1)" : "rgba(248,113,113,0.1)",
-                  border: vault.status === "Funded" ? "1px solid rgba(34,197,94,0.25)" : "1px solid rgba(248,113,113,0.25)",
-                  color: vault.status === "Funded" ? "#4ade80" : "#f87171",
+                  background: vault.status === "Funded" ? "#e7f2ec" : "#fbf3f0",
+                  border: vault.status === "Funded" ? "1px solid rgba(28,51,40,0.3)" : "1px solid #e3c7c0",
+                  color: vault.status === "Funded" ? "var(--green)" : "#8a3a2a",
                 }}>{vault.status}</span>
               </div>
 
               {vault.status !== "Funded" && (
-                <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)", color: "#fbbf24", fontSize: 13 }}>
-                  ⚠ Only <code style={{ fontSize: 11 }}>Funded</code> vaults can receive a deliverable. This vault is <strong>{vault.status}</strong>.
+                <div style={{ padding: "10px 14px", borderRadius: 10, background: "#fbf3e0", border: "1px solid #d9bc7a", color: "#8a5c1f", fontSize: 13 }}>
+                  ⚠ Only <code className="ledger-mono" style={{ fontSize: 11 }}>Funded</code> vaults can receive a deliverable. This vault is <strong>{vault.status}</strong>.
                 </div>
               )}
 
               {vault.status === "Funded" && wallet?.publicKey !== vault.freelancer && (
-                <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)", color: "#f87171", fontSize: 13 }}>
-                  ⚠ Only the assigned freelancer (<code style={{ fontFamily: "monospace", fontSize: 11 }}>{vault.freelancer.slice(0,8)}…</code>) can submit.
+                <div style={{ padding: "10px 14px", borderRadius: 10, background: "#fbf3f0", border: "1px solid #e3c7c0", color: "#8a3a2a", fontSize: 13 }}>
+                  ⚠ Only the assigned freelancer (<code className="ledger-mono" style={{ fontSize: 11 }}>{vault.freelancer.slice(0,8)}…</code>) can submit.
                 </div>
               )}
 
@@ -157,11 +163,14 @@ export function SubmitDeliverableForm({ onSuccess, onError }: SubmitDeliverableF
                     error={urlError} disabled={busy}
                     hint="GitHub PR · Figma link · Google Doc · any public URL"
                   />
-                  <button type="submit" className="btn-sweep" disabled={busy} style={{
+                  {/* Tx progress stepper */}
+                  {busy && <TxStepper stage={stage} />}
+                  <button type="submit" disabled={busy} style={{
                     width: "100%",
-                    background: busy ? "rgba(168,85,247,0.3)" : "linear-gradient(135deg,#a855f7,#c026d3)",
-                    border: "none", borderRadius: 12, padding: 14,
-                    color: "#fff", fontSize: 15, fontWeight: 800,
+                    background: busy ? "var(--cream-line)" : "var(--green)",
+                    border: "1px solid var(--green-deep)", borderRadius: 12,
+                    padding: 14, color: busy ? "var(--muted-soft)" : "var(--brand-cream)",
+                    fontSize: 15, fontWeight: 700,
                     cursor: busy ? "not-allowed" : "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                     marginTop: "auto",
@@ -174,7 +183,7 @@ export function SubmitDeliverableForm({ onSuccess, onError }: SubmitDeliverableF
               )}
 
               {formState === "failed" && errorMsg && (
-                <p style={{ fontSize: 13, color: "#f87171" }}>{errorMsg}</p>
+                <p style={{ fontSize: 13, color: "#8a3a2a" }}>{errorMsg}</p>
               )}
             </form>
           )}
@@ -184,18 +193,18 @@ export function SubmitDeliverableForm({ onSuccess, onError }: SubmitDeliverableF
       {/* Success */}
       {formState === "success" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, padding: "10px 16px", borderRadius: 10, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", color: "#4ade80" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, padding: "10px 16px", borderRadius: 10, background: "#e7f2ec", border: "1px solid rgba(28,51,40,0.3)", color: "var(--green)" }}>
             ✓ Deliverable submitted — vault is now In Review!
           </div>
-          <p style={{ fontSize: 13, color: "#94a3b8" }}>The client can now review your work and release the funds.</p>
+          <p style={{ fontSize: 13, color: "var(--muted)" }}>The client can now review your work and release the funds.</p>
           {txHash && (
             <div style={{ fontSize: 11, display: "flex", gap: 6, alignItems: "flex-start" }}>
-              <span style={{ color: "#475569", flexShrink: 0, marginTop: 1 }}>Tx:</span>
+              <span className="ledger-mono" style={{ color: "var(--muted-soft)", flexShrink: 0, marginTop: 1 }}>Tx:</span>
               <a href={`https://stellar.expert/explorer/testnet/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
-                style={{ color: "#c084fc", fontFamily: "monospace", wordBreak: "break-all", textDecoration: "underline" }}>{txHash}</a>
+                style={{ color: "var(--green)", fontFamily: "var(--font-mono)", wordBreak: "break-all", textDecoration: "underline" }}>{txHash}</a>
             </div>
           )}
-          <button onClick={reset} style={{ alignSelf: "flex-start", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "8px 16px", color: "#64748b", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+          <button onClick={reset} style={{ alignSelf: "flex-start", background: "var(--paper)", border: "1px solid var(--cream-line)", borderRadius: 10, padding: "8px 16px", color: "var(--muted)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
             Submit another
           </button>
         </div>

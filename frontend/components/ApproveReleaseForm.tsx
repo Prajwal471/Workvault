@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import { useWallet } from "@/context/WalletContext";
 import { approveAndRelease, getVault, VaultInfo } from "@/lib/contracts";
+import { TxStage } from "@/lib/stellar";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { TxStepper } from "@/components/ui/TxStepper";
 
 interface ApproveReleaseFormProps {
   onSuccess?: (hash: string) => void;
@@ -25,6 +27,7 @@ export function ApproveReleaseForm({ onSuccess, onError }: ApproveReleaseFormPro
   const [txHash, setTxHash]             = useState<string | null>(null);
   const [errorMsg, setErrorMsg]         = useState<string | null>(null);
   const [idError, setIdError]           = useState("");
+  const [stage, setStage]               = useState<TxStage | null>(null);
 
   const handleLookup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,9 +49,9 @@ export function ApproveReleaseForm({ onSuccess, onError }: ApproveReleaseFormPro
 
   const handleRelease = async () => {
     if (!wallet || !vault) return;
-    setFormState("releasing"); setErrorMsg(null); setTxHash(null);
+    setFormState("releasing"); setErrorMsg(null); setTxHash(null); setStage(null);
 
-    const result = await approveAndRelease(wallet.publicKey, vault.id);
+    const result = await approveAndRelease(wallet.publicKey, vault.id, (s) => setStage(s));
     if (!result.ok) {
       setFormState("failed");
       setErrorMsg(result.error ?? "Release failed");
@@ -71,7 +74,7 @@ export function ApproveReleaseForm({ onSuccess, onError }: ApproveReleaseFormPro
 
   return (
     <Card id="approve-release-card">
-      <CardHeader icon={<Icon name="release" size={18} />} accent="#a855f7" title="Approve & Release" subtitle="Client · Release escrow to freelancer" />
+      <CardHeader icon={<Icon name="release" size={18} />} accent="var(--green)" title="Approve & Release" subtitle="Client · Release escrow to freelancer" />
 
       {formState !== "success" && (
         <>
@@ -91,9 +94,9 @@ export function ApproveReleaseForm({ onSuccess, onError }: ApproveReleaseFormPro
             </div>
             <button type="submit" disabled={busy || !vaultIdInput} style={{
               flexShrink: 0,
-              background: busy || !vaultIdInput ? "rgba(255,255,255,0.04)" : "rgba(168,85,247,0.15)",
-              border: "1px solid rgba(168,85,247,0.3)", borderRadius: 10, padding: "11px 18px",
-              color: busy || !vaultIdInput ? "#475569" : "#c084fc",
+              background: busy || !vaultIdInput ? "var(--cream-soft)" : "rgba(28,51,40,0.08)",
+              border: "1px solid rgba(28,51,40,0.28)", borderRadius: 10, padding: "11px 18px",
+              color: busy || !vaultIdInput ? "var(--muted-soft)" : "var(--green)",
               fontSize: 13, fontWeight: 700, cursor: busy || !vaultIdInput ? "not-allowed" : "pointer",
               display: "flex", alignItems: "center", gap: 6,
             }}>
@@ -106,23 +109,23 @@ export function ApproveReleaseForm({ onSuccess, onError }: ApproveReleaseFormPro
             </button>
           </form>
 
-          {errorMsg && formState !== "failed" && <p style={{ fontSize: 13, color: "#f87171" }}>{errorMsg}</p>}
+          {errorMsg && formState !== "failed" && <p style={{ fontSize: 13, color: "#8a3a2a" }}>{errorMsg}</p>}
 
           {vault && (
             <div style={{ display: "flex", flexDirection: "column", gap: 14, flexGrow: 1 }}>
               {/* Vault preview */}
               <div style={{
-                borderRadius: 12, border: "1px solid rgba(255,255,255,0.07)",
-                background: "rgba(255,255,255,0.03)", padding: "14px 16px",
+                borderRadius: 12, border: "1px solid var(--cream-line)",
+                background: "var(--cream-soft)", padding: "14px 16px",
                 display: "flex", flexDirection: "column", gap: 10,
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#cbd5e1" }}>Vault #{String(vault.id)}</span>
+                  <span className="ledger-mono" style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>Vault #{String(vault.id)}</span>
                   <span style={{
                     fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 999,
-                    background: vault.status === "InReview" ? "rgba(251,191,36,0.1)" : "rgba(255,255,255,0.06)",
-                    border: vault.status === "InReview" ? "1px solid rgba(251,191,36,0.25)" : "1px solid rgba(255,255,255,0.1)",
-                    color: vault.status === "InReview" ? "#fbbf24" : "#64748b",
+                    background: vault.status === "InReview" ? "#fbf3e0" : "var(--cream-soft)",
+                    border: vault.status === "InReview" ? "1px solid #d9bc7a" : "1px solid var(--cream-line)",
+                    color: vault.status === "InReview" ? "#8a5c1f" : "var(--muted)",
                   }}>{vault.status}</span>
                 </div>
 
@@ -132,14 +135,14 @@ export function ApproveReleaseForm({ onSuccess, onError }: ApproveReleaseFormPro
                   ...(vault.proofUrl ? [{ label: "Proof URL", value: vault.proofUrl, link: vault.proofUrl }] : []),
                 ].map(row => (
                   <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-                    <span style={{ fontSize: 11, color: "#475569", flexShrink: 0 }}>{row.label}</span>
+                    <span className="ledger-mono" style={{ fontSize: 11, color: "var(--muted)", flexShrink: 0 }}>{row.label}</span>
                     {(row as any).link ? (
                       <a href={(row as any).link} target="_blank" rel="noopener noreferrer"
-                        style={{ fontSize: 12, color: "#c084fc", wordBreak: "break-all", textDecoration: "underline", textAlign: "right" }}>
+                        style={{ fontSize: 12, color: "var(--green)", wordBreak: "break-all", textDecoration: "underline", textAlign: "right" }}>
                         {row.value.length > 40 ? row.value.slice(0, 40) + "…" : row.value}
                       </a>
                     ) : (
-                      <span style={{ fontSize: 12, color: "#94a3b8", fontFamily: (row as any).mono ? "monospace" : "inherit", textAlign: "right" }}>
+                      <span style={{ fontSize: 12, color: "var(--brown)", fontFamily: (row as any).mono ? "var(--font-mono)" : "inherit", textAlign: "right" }}>
                         {row.value}
                       </span>
                     )}
@@ -149,29 +152,32 @@ export function ApproveReleaseForm({ onSuccess, onError }: ApproveReleaseFormPro
 
               {/* Guards */}
               {vault.status !== "InReview" && (
-                <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)", color: "#fbbf24", fontSize: 13 }}>
-                  ⚠ Vault must be <code style={{ fontSize: 11 }}>InReview</code> to release. Current status: <strong>{vault.status}</strong>
+                <div style={{ padding: "10px 14px", borderRadius: 10, background: "#fbf3e0", border: "1px solid #d9bc7a", color: "#8a5c1f", fontSize: 13 }}>
+                  ⚠ Vault must be <code className="ledger-mono" style={{ fontSize: 11 }}>InReview</code> to release. Current status: <strong>{vault.status}</strong>
                 </div>
               )}
 
               {vault.status === "InReview" && wallet?.publicKey !== vault.client && (
-                <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)", color: "#f87171", fontSize: 13 }}>
-                  ⚠ Only the client (<code style={{ fontFamily: "monospace", fontSize: 11 }}>{vault.client.slice(0,8)}…</code>) can release funds.
+                <div style={{ padding: "10px 14px", borderRadius: 10, background: "#fbf3f0", border: "1px solid #e3c7c0", color: "#8a3a2a", fontSize: 13 }}>
+                  ⚠ Only the client (<code className="ledger-mono" style={{ fontSize: 11 }}>{vault.client.slice(0,8)}…</code>) can release funds.
                 </div>
               )}
+
+              {/* Tx progress stepper */}
+              {formState === "releasing" && <TxStepper stage={stage} />}
 
               {/* Release button */}
               {vault.status === "InReview" && wallet?.publicKey === vault.client && (
                 <button
                   id="release-funds-btn"
-                  className="btn-sweep"
                   onClick={handleRelease}
                   disabled={busy}
                   style={{
                     width: "100%",
-                    background: busy ? "rgba(168,85,247,0.2)" : "linear-gradient(135deg,#a855f7,#c026d3)",
-                    border: "none", borderRadius: 12, padding: 14,
-                    color: "#fff", fontSize: 15, fontWeight: 800,
+                    background: busy ? "var(--cream-line)" : "var(--green)",
+                    border: "1px solid var(--green-deep)", borderRadius: 12,
+                    padding: 14, color: busy ? "var(--muted-soft)" : "var(--brand-cream)",
+                    fontSize: 15, fontWeight: 700,
                     cursor: busy ? "not-allowed" : "pointer",
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                     marginTop: "auto",
@@ -184,7 +190,7 @@ export function ApproveReleaseForm({ onSuccess, onError }: ApproveReleaseFormPro
               )}
 
               {formState === "failed" && errorMsg && (
-                <p style={{ fontSize: 13, color: "#f87171" }}>{errorMsg}</p>
+                <p style={{ fontSize: 13, color: "#8a3a2a" }}>{errorMsg}</p>
               )}
             </div>
           )}
@@ -194,20 +200,20 @@ export function ApproveReleaseForm({ onSuccess, onError }: ApproveReleaseFormPro
       {/* Success */}
       {formState === "success" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, padding: "10px 16px", borderRadius: 10, background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", color: "#4ade80" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, padding: "10px 16px", borderRadius: 10, background: "#e7f2ec", border: "1px solid rgba(28,51,40,0.3)", color: "var(--green)" }}>
             ✓ Funds released! Vault is now Completed.
           </div>
-          <p style={{ fontSize: 13, color: "#94a3b8" }}>
-            <strong style={{ color: "#4ade80" }}>{xlmAmount.toLocaleString()} XLM</strong> has been transferred to the freelancer.
+          <p style={{ fontSize: 13, color: "var(--muted)" }}>
+            <strong style={{ color: "var(--green)" }}>{xlmAmount.toLocaleString()} XLM</strong> has been transferred to the freelancer.
           </p>
           {txHash && (
             <div style={{ fontSize: 11, display: "flex", gap: 6, alignItems: "flex-start" }}>
-              <span style={{ color: "#475569", flexShrink: 0, marginTop: 1 }}>Tx:</span>
+              <span className="ledger-mono" style={{ color: "var(--muted-soft)", flexShrink: 0, marginTop: 1 }}>Tx:</span>
               <a href={`https://stellar.expert/explorer/testnet/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
-                style={{ color: "#c084fc", fontFamily: "monospace", wordBreak: "break-all", textDecoration: "underline" }}>{txHash}</a>
+                style={{ color: "var(--green)", fontFamily: "var(--font-mono)", wordBreak: "break-all", textDecoration: "underline" }}>{txHash}</a>
             </div>
           )}
-          <button onClick={reset} style={{ alignSelf: "flex-start", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "8px 16px", color: "#64748b", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+          <button onClick={reset} style={{ alignSelf: "flex-start", background: "var(--paper)", border: "1px solid var(--cream-line)", borderRadius: 10, padding: "8px 16px", color: "var(--muted)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
             Release another vault
           </button>
         </div>

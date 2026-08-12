@@ -104,7 +104,7 @@ export function WalletPicker({ open, onClose, tone = "dark" }: WalletPickerProps
     {
       id: "pick-rabet",
       label: "Rabet",
-      color: "#c084fc",
+      color: "#1c3328",
       sublabel: rabetInstalled ? "Browser extension" : "Not installed",
       available: rabetInstalled,
       installUrl: "https://rabet.io",

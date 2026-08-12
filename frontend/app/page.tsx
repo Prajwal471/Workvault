@@ -51,18 +51,21 @@ export default function LandingPage() {
       {/* ── Header ────────────────────────────────────────────────────── */}
       <header
         style={{
-          position: "sticky", top: 0, zIndex: 50,
-          background: "#FFFFFF",
+          position: "sticky", top: 0, zIndex: 40,
+          background: "rgba(255,255,255,0.88)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
           borderBottom: "1px solid var(--cream-line)",
+          flexShrink: 0,
         }}
       >
         <div style={{
-          maxWidth: 1120, margin: "0 auto",
-          padding: "16px 24px",
+          width: "100%",
+          paddingLeft: "clamp(20px, 5vw, 52px)", paddingRight: "clamp(20px, 4vw, 40px)", height: 68,
           display: "flex", alignItems: "center",
-          justifyContent: "space-between", gap: 16,
+          justifyContent: "space-between",
         }}>
-          <Logo variant="brand" size={36} tagline="Testnet" />
+          <Logo variant="brand" size={40} tagline="Testnet" />
 
           {connected ? (
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

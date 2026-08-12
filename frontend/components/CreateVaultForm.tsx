@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { useWallet } from "@/context/WalletContext";
 import { createVault, getVaultCount } from "@/lib/contracts";
+import { TxStage } from "@/lib/stellar";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
+import { TxStepper } from "@/components/ui/TxStepper";
 
 const NATIVE_TOKEN_TESTNET = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";
 
@@ -22,13 +24,14 @@ export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult]           = useState<{ ok: boolean; vaultId?: bigint; hash?: string; error?: string } | null>(null);
   const [vaultCount, setVaultCount]   = useState<number | null>(null);
+  const [stage, setStage]             = useState<TxStage | null>(null);
 
   useEffect(() => { getVaultCount().then(setVaultCount); }, [result]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!wallet || wallet.mode === "watch") return;
-    setIsSubmitting(true); setResult(null);
+    setIsSubmitting(true); setResult(null); setStage(null);
 
     const parsed = parseFloat(amountXLM);
     if (!amountXLM || isNaN(parsed) || parsed <= 0 || !isFinite(parsed)) {
@@ -39,7 +42,7 @@ export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
     }
 
     const amountStroops = BigInt(Math.round(parsed * 10_000_000));
-    const callResult = await createVault(wallet.publicKey, freelancer.trim(), NATIVE_TOKEN_TESTNET, amountStroops);
+    const callResult = await createVault(wallet.publicKey, freelancer.trim(), NATIVE_TOKEN_TESTNET, amountStroops, (s) => setStage(s));
     if (callResult.ok) {
       const res = { ok: true, vaultId: callResult.data, hash: callResult.hash };
       setResult(res);
@@ -56,13 +59,13 @@ export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
     <Card id="create-vault-form-card">
       <CardHeader
         icon={<Icon name="lock" size={18} />}
-        accent="#a855f7"
+        accent="var(--green)"
         title="Create Vault"
         tag="Contract Call"
-        tagColor="#a855f7"
+        tagColor="var(--green)"
         subtitle="Level 2 · Soroban escrow"
         right={vaultCount !== null ? (
-          <span style={{ fontSize: 11, color: "#334155", fontFamily: "monospace", whiteSpace: "nowrap" }}>
+          <span className="ledger-mono" style={{ fontSize: 11, color: "var(--muted)", whiteSpace: "nowrap" }}>
             {vaultCount} vault{vaultCount !== 1 ? "s" : ""} on-chain
           </span>
         ) : undefined}
@@ -72,14 +75,14 @@ export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
       {!process.env.NEXT_PUBLIC_CONTRACT_ID && (
         <div id="contract-not-configured" style={{
           padding: "12px 14px", borderRadius: 10,
-          background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)",
-          color: "#fbbf24", fontSize: 13, lineHeight: 1.5,
+          background: "#fbf3e0", border: "1px solid #d9bc7a",
+          color: "#8a5c1f", fontSize: 13, lineHeight: 1.5,
         }}>
           ⚠ Contract ID not set. Deploy the contract and add{" "}
-          <code style={{ fontFamily: "monospace", background: "rgba(0,0,0,0.3)", padding: "1px 5px", borderRadius: 4 }}>
+          <code style={{ fontFamily: "var(--font-mono)", background: "rgba(138,92,31,0.12)", padding: "1px 5px", borderRadius: 4 }}>
             NEXT_PUBLIC_CONTRACT_ID
           </code>{" "}to{" "}
-          <code style={{ fontFamily: "monospace", background: "rgba(0,0,0,0.3)", padding: "1px 5px", borderRadius: 4 }}>
+          <code style={{ fontFamily: "var(--font-mono)", background: "rgba(138,92,31,0.12)", padding: "1px 5px", borderRadius: 4 }}>
             .env.local
           </code>.
         </div>
@@ -99,8 +102,11 @@ export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
           hint="Total XLM to be locked in the vault" disabled={isSubmitting}
         />
 
-        {wallet?.mode === "watch" && <p style={{ fontSize: 13, color: "#fbbf24" }}>⚠ Watch-only mode — connect Freighter to create vaults.</p>}
-        {!wallet && <p style={{ fontSize: 13, color: "#fbbf24" }}>⚠ Connect your wallet first.</p>}
+        {wallet?.mode === "watch" && <p style={{ fontSize: 13, color: "#8a5c1f" }}>⚠ Watch-only mode — connect Freighter to create vaults.</p>}
+        {!wallet && <p style={{ fontSize: 13, color: "#8a5c1f" }}>⚠ Connect your wallet first.</p>}
+
+        {/* Tx progress stepper */}
+        {isSubmitting && <TxStepper stage={stage} />}
 
         <button
           id="create-vault-btn" type="submit"
@@ -109,10 +115,11 @@ export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
           style={{
             width: "100%",
             background: isSubmitting || !wallet || wallet.mode === "watch"
-              ? "rgba(168,85,247,0.3)"
-              : "linear-gradient(135deg,#a855f7,#c026d3)",
-            border: "none", borderRadius: 12,
-            padding: "14px", color: "#fff", fontSize: 15, fontWeight: 700,
+              ? "var(--cream-line)"
+              : "var(--green)",
+            border: "1px solid var(--green-deep)", borderRadius: 12,
+            padding: "14px", color: isSubmitting || !wallet || wallet.mode === "watch" ? "var(--muted-soft)" : "var(--brand-cream)",
+            fontSize: 15, fontWeight: 700,
             cursor: !wallet || wallet.mode === "watch" || isSubmitting ? "not-allowed" : "pointer",
             display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             marginTop: "auto",
@@ -121,8 +128,8 @@ export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
         >
           {isSubmitting && (
             <svg style={{ width: 16, height: 16, animation: "spin 1s linear infinite" }} viewBox="0 0 24 24" fill="none">
-              <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="white" strokeWidth="4"/>
-              <path style={{ opacity: 0.75 }} fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
             </svg>
           )}
           {isSubmitting ? "Creating vault…" : "Create Vault on Testnet"}
@@ -137,21 +144,21 @@ export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 fontSize: 13, fontWeight: 600, padding: "8px 14px", borderRadius: 8,
-                background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", color: "#4ade80",
+                background: "#e7f2ec", border: "1px solid rgba(28,51,40,0.3)", color: "var(--green)",
               }}>✓ Vault created on-chain!</div>
               {result.vaultId !== undefined && (
-                <p style={{ fontSize: 13, color: "#cbd5e1" }}>
-                  Vault ID: <span style={{ fontFamily: "monospace", color: "#c084fc" }}>#{String(result.vaultId)}</span>
+                <p style={{ fontSize: 13, color: "var(--ink)" }}>
+                  Vault ID: <span className="ledger-mono" style={{ fontWeight: 700, color: "var(--green)" }}>#{String(result.vaultId)}</span>
                 </p>
               )}
               {result.hash && (
                 <div style={{ fontSize: 11, display: "flex", gap: 6, alignItems: "flex-start" }}>
-                  <span style={{ color: "#475569", flexShrink: 0, marginTop: 1 }}>Tx:</span>
+                  <span className="ledger-mono" style={{ color: "var(--muted-soft)", flexShrink: 0, marginTop: 1 }}>Tx:</span>
                   <a
                     id="vault-tx-hash-link"
                     href={`https://stellar.expert/explorer/testnet/tx/${result.hash}`}
                     target="_blank" rel="noopener noreferrer"
-                    style={{ color: "#c084fc", fontFamily: "monospace", wordBreak: "break-all", textDecoration: "underline" }}
+                    style={{ color: "var(--green)", fontFamily: "var(--font-mono)", wordBreak: "break-all", textDecoration: "underline" }}
                   >
                     {result.hash}
                   </a>
@@ -163,9 +170,9 @@ export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 fontSize: 13, fontWeight: 600, padding: "8px 14px", borderRadius: 8,
-                background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.25)", color: "#f87171",
+                background: "#fbf3f0", border: "1px solid #e3c7c0", color: "#8a3a2a",
               }}>✕ Failed</div>
-              <p id="vault-error-message" style={{ fontSize: 13, color: "#f87171", marginTop: 8, wordBreak: "break-word" }}>{result.error}</p>
+              <p id="vault-error-message" style={{ fontSize: 13, color: "#8a3a2a", marginTop: 8, wordBreak: "break-word" }}>{result.error}</p>
             </div>
           )}
         </div>

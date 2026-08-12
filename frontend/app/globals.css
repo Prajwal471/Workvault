@@ -204,13 +204,13 @@ body {
 .card-premium {
   border: 1px solid transparent;
   background:
-    linear-gradient(var(--paper), var(--paper)) padding-box,
+    linear-gradient(var(--cream-soft), var(--cream-soft)) padding-box,
     linear-gradient(180deg, rgba(32,28,23,0.14) 0%, rgba(32,28,23,0.05) 40%) border-box;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 .card-premium:hover {
   background:
-    linear-gradient(var(--cream-soft), var(--cream-soft)) padding-box,
+    linear-gradient(var(--cream), var(--cream)) padding-box,
     linear-gradient(180deg, var(--green) 0%, rgba(28,51,40,0.2) 55%) border-box;
 }
 

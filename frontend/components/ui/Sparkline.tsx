@@ -8,6 +8,8 @@ interface SparklineProps {
   height?: number;
   color?: string;
   fillId?: string;
+  fillTop?: string;
+  fillBottom?: string;
 }
 
 /** Tiny sparkline for real balance samples. Renders nothing until >= 2 points. */
@@ -17,6 +19,8 @@ export function Sparkline({
   height = 48,
   color = "rgba(28,51,40,0.6)",
   fillId = "spark-fill",
+  fillTop = "rgba(28,51,40,0.22)",
+  fillBottom = "rgba(28,51,40,0)",
 }: SparklineProps) {
   if (data.length < 2) return null;
 
@@ -43,8 +47,8 @@ export function Sparkline({
     >
       <defs>
         <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#1c3328" stopOpacity="0.22" />
-          <stop offset="100%" stopColor="#1c3328" stopOpacity="0" />
+          <stop offset="0%" stopColor={fillTop} />
+          <stop offset="100%" stopColor={fillBottom} />
         </linearGradient>
       </defs>
       <polygon points={area} fill={`url(#${fillId})`} />

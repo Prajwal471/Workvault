@@ -42,7 +42,7 @@ export function WalletBar() {
         {!freighterInstalled && (
           <div
             id="freighter-missing-warning"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#fbf3e0] border border-[#d9bc7a] text-[#8a5c1f] text-sm"
           >
             <span>⚠</span>
             <span>Freighter wallet not detected.{" "}
@@ -50,7 +50,7 @@ export function WalletBar() {
                 href="https://freighter.app"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline hover:text-amber-300"
+                className="underline hover:text-[#6a3e26]"
               >
                 Install it here
               </a>
@@ -62,7 +62,7 @@ export function WalletBar() {
         {error && (
           <div
             id="wallet-error"
-            className="flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
+            className="flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl bg-[#fbf3f0] border border-[#e3c7c0] text-[#8a3a2a] text-sm"
           >
             <span>{error}</span>
             <button onClick={clearError} className="opacity-60 hover:opacity-100">✕</button>
@@ -105,7 +105,7 @@ export function WalletBar() {
           </form>
         )}
 
-        <WalletPicker open={showPicker} onClose={() => setShowPicker(false)} />
+        <WalletPicker open={showPicker} onClose={() => setShowPicker(false)} tone="light" />
       </div>
     );
   }
@@ -117,18 +117,18 @@ export function WalletBar() {
         display: "flex", flexWrap: "wrap",
         alignItems: "center", justifyContent: "space-between",
         gap: 16, padding: "16px 20px",
-        borderRadius: 16, border: "1px solid rgba(255,255,255,0.07)",
-        background: "rgba(18,15,30,0.92)",
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+        borderRadius: 16, border: "1px solid var(--cream-line)",
+        background: "var(--cream-soft)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
         {/* Avatar */}
         <div style={{
           width: 40, height: 40, borderRadius: "50%",
-          background: "linear-gradient(135deg,#a855f7,#c026d3)",
+          background: "linear-gradient(135deg, var(--green), var(--walnut))",
           display: "flex", alignItems: "center", justifyContent: "center",
-          color: "#fff", flexShrink: 0,
+          color: "var(--brand-cream)", flexShrink: 0,
         }}>
           {wallet.mode === "watch" ? <Icon name="eye" size={18} /> : <Icon name="star" size={16} />}
         </div>
@@ -138,28 +138,15 @@ export function WalletBar() {
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span
               id="wallet-address"
-              style={{ fontFamily: "monospace", fontSize: 13, color: "#f1f5f9", fontWeight: 600 }}
+              style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--ink)", fontWeight: 600 }}
               title={wallet.publicKey}
             >
               {wallet.displayKey}
             </span>
             <span style={{
               fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 999,
-              background: wallet.mode === "freighter" ? "rgba(34,197,94,0.12)"
-                        : wallet.mode === "xbull"     ? "rgba(251,191,36,0.12)"
-                        : wallet.mode === "albedo"    ? "rgba(99,102,241,0.12)"
-                        : wallet.mode === "rabet"     ? "rgba(192,132,252,0.12)"
-                        : "rgba(34,211,238,0.12)",
-              border: wallet.mode === "freighter" ? "1px solid rgba(34,197,94,0.25)"
-                    : wallet.mode === "xbull"     ? "1px solid rgba(251,191,36,0.25)"
-                    : wallet.mode === "albedo"    ? "1px solid rgba(99,102,241,0.25)"
-                    : wallet.mode === "rabet"     ? "1px solid rgba(192,132,252,0.25)"
-                    : "1px solid rgba(34,211,238,0.25)",
-              color: wallet.mode === "freighter" ? "#4ade80"
-                   : wallet.mode === "xbull"     ? "#fbbf24"
-                   : wallet.mode === "albedo"    ? "#818cf8"
-                   : wallet.mode === "rabet"     ? "#c084fc"
-                   : "#22d3ee",
+              background: "rgba(28,51,40,0.08)", border: "1px solid rgba(28,51,40,0.18)",
+              color: "var(--green)",
             }}>
               ● {wallet.mode === "freighter" ? "Freighter"
                 : wallet.mode === "xbull"   ? "xBull"
@@ -169,7 +156,7 @@ export function WalletBar() {
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span id="xlm-balance" style={{ fontFamily: "monospace", fontSize: 12, color: "#64748b" }}>
+            <span id="xlm-balance" className="ledger-mono" style={{ fontSize: 12, color: "var(--muted)" }}>
               {isRefreshingBalance ? "…" : `${parseFloat(balance).toFixed(2)} XLM`}
             </span>
             <button
@@ -179,11 +166,11 @@ export function WalletBar() {
               title="Refresh balance"
               style={{
                 background: "none", border: "none", cursor: "pointer",
-                color: "#475569", fontSize: 13, padding: 0, lineHeight: 1,
+                color: "var(--muted-soft)", fontSize: 13, padding: 0, lineHeight: 1,
                 transition: "color 0.15s",
               }}
-              onMouseEnter={e => (e.currentTarget.style.color = "#94a3b8")}
-              onMouseLeave={e => (e.currentTarget.style.color = "#475569")}
+              onMouseEnter={e => (e.currentTarget.style.color = "var(--brown)")}
+              onMouseLeave={e => (e.currentTarget.style.color = "var(--muted-soft)")}
             >↻</button>
           </div>
         </div>
@@ -197,9 +184,9 @@ export function WalletBar() {
             onClick={() => setShowPicker(true)}
             disabled={isConnecting}
             style={{
-              background: "linear-gradient(135deg,#a855f7,#c026d3)",
-              border: "none", borderRadius: 10, padding: "8px 16px",
-              color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer",
+              background: "var(--green)",
+              border: "1px solid var(--green-deep)", borderRadius: 10, padding: "8px 16px",
+              color: "var(--brand-cream)", fontSize: 13, fontWeight: 700, cursor: "pointer",
             }}
           >
             Connect Wallet
@@ -209,19 +196,19 @@ export function WalletBar() {
           id="disconnect-wallet-btn"
           onClick={disconnect}
           style={{
-            background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+            background: "var(--paper)", border: "1px solid var(--cream-line)",
             borderRadius: 10, padding: "8px 16px",
-            color: "#64748b", fontSize: 13, fontWeight: 600,
+            color: "var(--muted)", fontSize: 13, fontWeight: 600,
             cursor: "pointer", transition: "color 0.15s, border-color 0.15s",
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "#f87171"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(248,113,113,0.3)"; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "#64748b"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.1)"; }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "#8a3a2a"; (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(138,58,42,0.35)"; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--cream-line)"; }}
         >
           Disconnect
         </button>
       </div>
 
-      <WalletPicker open={showPicker} onClose={() => setShowPicker(false)} />
+      <WalletPicker open={showPicker} onClose={() => setShowPicker(false)} tone="light" />
     </div>
   );
 }

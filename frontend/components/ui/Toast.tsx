@@ -20,17 +20,17 @@ const icons: Record<ToastType, string> = {
 };
 
 const toastStyles: Record<ToastType, string> = {
-  success: "border-emerald-500/40 bg-emerald-900/30 text-emerald-300",
-  error: "border-red-500/40 bg-red-900/30 text-red-300",
-  info: "border-indigo-500/40 bg-indigo-900/30 text-indigo-300",
-  warning: "border-amber-500/40 bg-amber-900/30 text-amber-300",
+  success: "border-[#1c3328]/30 bg-[#e7f2ec] text-[#1c3328]",
+  error: "border-[#e3c7c0] bg-[#fbf3f0] text-[#8a3a2a]",
+  info: "border-[#c9bea8] bg-[#f7f3ea] text-[#3e2f21]",
+  warning: "border-[#d9bc7a] bg-[#fbf3e0] text-[#8a5c1f]",
 };
 
 const iconStyles: Record<ToastType, string> = {
-  success: "bg-emerald-500/20 text-emerald-400",
-  error: "bg-red-500/20 text-red-400",
-  info: "bg-indigo-500/20 text-indigo-400",
-  warning: "bg-amber-500/20 text-amber-400",
+  success: "bg-[#1c3328] text-[#f4efe6]",
+  error: "bg-[#a34a36] text-white",
+  info: "bg-[#3e2f21] text-[#f4efe6]",
+  warning: "bg-[#b38a3a] text-white",
 };
 
 // ── Single Toast ───────────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
   return (
     <div
       className={[
-        "flex items-start gap-3 p-4 rounded-xl border backdrop-blur-md max-w-sm w-full shadow-xl",
+        "flex items-start gap-3 p-4 rounded-xl border shadow-lg max-w-sm w-full",
         "transition-all duration-300",
         toastStyles[toast.type],
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",

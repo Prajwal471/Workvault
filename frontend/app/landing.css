@@ -1,59 +1,15 @@
 /* ── Landing page — "Ledger & Seal" identity ─────────────────────────────
-   Scoped to the landing page only. The dashboard keeps its dark theme.     */
+   Tokens and the shared utility classes (.ledger-mono, .dial-rule,
+   .landing-serif, .gradient-text) now live in globals.css. This file keeps
+   only landing-specific page wrapper + button styles.                       */
 
 .landing {
-  /* ── Tokens ── */
-  --paper: #ffffff;
-  --cream: #efe9dc;
-  --cream-line: #c9bea8;
-  --green: #1c3328;
-  --green-deep: #0f1f18;
-  --green-tile: #1a2e26;
-  --brown: #3e2f21;
-  --brown-deep: #2a1f15;
-  --walnut: #6a3e26;
-  --ink: #201c17;
-  --muted: #5e564b;
-  --brand-cream: #f4efe6;
-
   background: var(--paper);
   color: var(--ink);
   min-height: 100dvh;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-}
-
-/* Headlines — serif gravity */
-.landing-serif {
-  font-family: var(--font-serif);
-}
-
-/* Numbers, addresses, contract IDs — monospace in walnut brown */
-.ledger-mono {
-  font-family: var(--font-mono);
-  color: var(--brown);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Thin repeating-tick "dial rule" divider (walnut accent) */
-.dial-rule {
-  height: 10px;
-  background: repeating-linear-gradient(
-    to right,
-    var(--brown) 0,
-    var(--brown) 1px,
-    transparent 1px,
-    transparent 7px
-  );
-}
-
-/* Landing focus ring — deep green instead of the global purple */
-.landing :focus-visible {
-  outline: 2px solid var(--green);
-  outline-offset: 2px;
-  border-radius: 4px;
 }
 
 /* Primary button — flat deep green, no glow, no gradient */

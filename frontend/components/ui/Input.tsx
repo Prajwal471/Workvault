@@ -16,7 +16,7 @@ export function Input({ label, hint, error, id, style, ...rest }: InputProps) {
       {label && (
         <label
           htmlFor={inputId}
-          style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", letterSpacing: "0.03em" }}
+          style={{ fontSize: 12, fontWeight: 600, color: "var(--brown)", letterSpacing: "0.03em" }}
         >
           {label}
         </label>
@@ -25,12 +25,12 @@ export function Input({ label, hint, error, id, style, ...rest }: InputProps) {
         id={inputId}
         style={{
           width: "100%",
-          background: "rgba(255,255,255,0.05)",
-          border: `1px solid ${error ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.1)"}`,
+          background: "var(--paper)",
+          border: `1px solid ${error ? "rgba(138,58,42,0.55)" : "var(--cream-line)"}`,
           borderRadius: 10,
           padding: "11px 14px",
           fontSize: 14,
-          color: "#f1f5f9",
+          color: "var(--ink)",
           outline: "none",
           transition: "border-color 0.15s, box-shadow 0.15s",
           fontFamily: "inherit",
@@ -38,25 +38,25 @@ export function Input({ label, hint, error, id, style, ...rest }: InputProps) {
         }}
         onFocus={e => {
           e.currentTarget.style.borderColor = error
-            ? "rgba(239,68,68,0.7)"
-            : "rgba(168,85,247,0.65)";
+            ? "rgba(138,58,42,0.7)"
+            : "var(--green)";
           e.currentTarget.style.boxShadow = error
-            ? "0 0 0 3px rgba(239,68,68,0.12)"
-            : "0 0 0 3px rgba(168,85,247,0.14), 0 0 12px rgba(168,85,247,0.15)";
+            ? "0 0 0 3px rgba(138,58,42,0.12)"
+            : "0 0 0 3px rgba(28,51,40,0.12)";
         }}
         onBlur={e => {
           e.currentTarget.style.borderColor = error
-            ? "rgba(239,68,68,0.5)"
-            : "rgba(255,255,255,0.1)";
+            ? "rgba(138,58,42,0.55)"
+            : "var(--cream-line)";
           e.currentTarget.style.boxShadow = "none";
         }}
         {...rest}
       />
       {hint && !error && (
-        <p style={{ fontSize: 11, color: "#475569" }}>{hint}</p>
+        <p style={{ fontSize: 11, color: "var(--muted-soft)" }}>{hint}</p>
       )}
       {error && (
-        <p style={{ fontSize: 11, color: "#f87171" }}>{error}</p>
+        <p style={{ fontSize: 11, color: "#8a3a2a" }}>{error}</p>
       )}
     </div>
   );

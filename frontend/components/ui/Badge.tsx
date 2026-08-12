@@ -5,21 +5,21 @@ import React from "react";
 type BadgeVariant = "success" | "warning" | "error" | "info" | "neutral" | "pending";
 
 const styles: Record<BadgeVariant, string> = {
-  success: "bg-emerald-500/20 border-emerald-500/30 text-emerald-400",
-  warning: "bg-amber-500/20 border-amber-500/30 text-amber-400",
-  error: "bg-red-500/20 border-red-500/30 text-red-400",
-  info: "bg-cyan-500/20 border-cyan-500/30 text-cyan-400",
-  neutral: "bg-white/10 border-white/15 text-slate-400",
-  pending: "bg-indigo-500/20 border-indigo-500/30 text-indigo-400",
+  success: "bg-[#e7f2ec] border-[#1c3328]/30 text-[#1c3328]",
+  warning: "bg-[#fbf3e0] border-[#b38a3a]/30 text-[#8a5c1f]",
+  error: "bg-[#fbf3f0] border-[#e3c7c0] text-[#8a3a2a]",
+  info: "bg-[#e8efe8] border-[#2d4a3c]/30 text-[#1c3328]",
+  neutral: "bg-[var(--cream-soft)] border-[var(--cream-line)] text-[var(--muted)]",
+  pending: "bg-[#efe9dc] border-[#b38a3a]/40 text-[#8a5c1f]",
 };
 
 const dots: Record<BadgeVariant, string> = {
-  success: "bg-emerald-400",
-  warning: "bg-amber-400",
-  error: "bg-red-400",
-  info: "bg-cyan-400",
-  neutral: "bg-slate-400",
-  pending: "bg-indigo-400 animate-pulse",
+  success: "bg-[#1c3328]",
+  warning: "bg-[#b38a3a]",
+  error: "bg-[#a34a36]",
+  info: "bg-[#2d4a3c]",
+  neutral: "bg-[var(--muted-soft)]",
+  pending: "bg-[#b38a3a] animate-pulse",
 };
 
 interface BadgeProps {

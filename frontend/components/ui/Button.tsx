@@ -14,13 +14,13 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    "bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white hover:from-purple-400 hover:to-fuchsia-400 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50",
+    "bg-[var(--green)] text-[var(--brand-cream)] hover:bg-[var(--green-deep)] border border-[var(--green-deep)] shadow-md shadow-black/10",
   secondary:
-    "bg-white/10 border border-white/20 text-white hover:bg-white/15 backdrop-blur-sm",
+    "bg-[var(--paper)] border border-[var(--cream-line)] text-[var(--brown)] hover:border-[var(--walnut)] hover:text-[var(--walnut)] hover:bg-[var(--cream-soft)]",
   ghost:
-    "text-slate-300 hover:text-white hover:bg-white/8",
+    "text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[var(--cream-soft)]",
   danger:
-    "bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30 hover:text-red-300",
+    "bg-[#fbf3f0] border border-[#e3c7c0] text-[#8a3a2a] hover:bg-[#f8e7e0] hover:text-[#6f2c1f]",
 };
 
 const sizeClasses: Record<Size, string> = {
@@ -51,7 +51,7 @@ export function Button({
       className={[
         "inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200",
         "disabled:opacity-50 disabled:cursor-not-allowed",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(28,51,40,0.6)]",
         variantClasses[variant],
         variant === "primary" ? sweepClasses : "",
         sizeClasses[size],

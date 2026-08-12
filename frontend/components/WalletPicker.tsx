@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 interface WalletPickerProps {
   open: boolean;
   onClose: () => void;
+  tone?: "dark" | "light";
 }
 
 interface WalletOption {
@@ -19,7 +20,7 @@ interface WalletOption {
   connect: () => Promise<void>;
 }
 
-export function WalletPicker({ open, onClose }: WalletPickerProps) {
+export function WalletPicker({ open, onClose, tone = "dark" }: WalletPickerProps) {
   const {
     wallet,
     isConnecting,
@@ -49,6 +50,28 @@ export function WalletPicker({ open, onClose }: WalletPickerProps) {
   }, [open, onClose]);
 
   if (!open) return null;
+
+  const light = tone === "light";
+  const t = {
+    overlay: light ? "rgba(32,28,23,0.35)" : "rgba(8,6,13,0.8)",
+    overlayBlur: light ? "blur(4px)" : "blur(12px)",
+    panelBg: light ? "#FFFFFF" : "#0f0c1a",
+    panelBorder: light ? "#C9BEA8" : "rgba(255,255,255,0.1)",
+    title: light ? "#201C17" : "#fff",
+    sub: light ? "#5E564B" : "#64748b",
+    closeBg: light ? "#EFE9DC" : "rgba(255,255,255,0.05)",
+    closeBorder: light ? "#C9BEA8" : "rgba(255,255,255,0.1)",
+    closeColor: light ? "#3E2F21" : "#64748b",
+    rowBg: light ? "#F7F3EA" : "rgba(255,255,255,0.03)",
+    rowBorder: light ? "#DCD3C1" : "rgba(255,255,255,0.09)",
+    rowHoverBg: light ? "#EFE9DC" : "rgba(255,255,255,0.06)",
+    rowText: light ? "#201C17" : "#f1f5f9",
+    rowSub: light ? "#5E564B" : "#475569",
+    rowInstallBg: light ? "#F7F3EA" : "rgba(255,255,255,0.02)",
+    rowInstallBorder: light ? "#DCD3C1" : "rgba(255,255,255,0.12)",
+    rowInstallText: light ? "#5E564B" : "#475569",
+    footer: light ? "#5E564B" : "#334155",
+  };
 
   const options: WalletOption[] = [
     {
@@ -99,9 +122,9 @@ export function WalletPicker({ open, onClose }: WalletPickerProps) {
         position: "fixed",
         inset: 0,
         zIndex: 100,
-        background: "rgba(8,6,13,0.8)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
+        background: t.overlay,
+        backdropFilter: t.overlayBlur,
+        WebkitBackdropFilter: t.overlayBlur,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -113,10 +136,9 @@ export function WalletPicker({ open, onClose }: WalletPickerProps) {
         style={{
           width: "100%",
           maxWidth: 440,
-          borderRadius: 24,
-          border: "1px solid rgba(255,255,255,0.1)",
-          background: "#0f0c1a",
-          boxShadow: "0 30px 90px rgba(0,0,0,0.6)",
+          borderRadius: light ? 16 : 24,
+          border: `1px solid ${t.panelBorder}`,
+          background: t.panelBg,
           padding: "28px",
           display: "flex",
           flexDirection: "column",
@@ -126,10 +148,10 @@ export function WalletPicker({ open, onClose }: WalletPickerProps) {
         {/* Header */}
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: "#fff", margin: 0, letterSpacing: "-0.02em" }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: t.title, margin: 0, letterSpacing: "-0.02em" }}>
               Connect a Wallet
             </h2>
-            <p style={{ fontSize: 13, color: "#64748b", margin: 0, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: t.sub, margin: 0, lineHeight: 1.5 }}>
               Choose how you want to sign transactions
             </p>
           </div>
@@ -137,12 +159,12 @@ export function WalletPicker({ open, onClose }: WalletPickerProps) {
             onClick={onClose}
             aria-label="Close"
             style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
+              background: t.closeBg,
+              border: `1px solid ${t.closeBorder}`,
               borderRadius: 10,
               width: 32,
               height: 32,
-              color: "#64748b",
+              color: t.closeColor,
               fontSize: 15,
               cursor: "pointer",
               flexShrink: 0,
@@ -167,10 +189,10 @@ export function WalletPicker({ open, onClose }: WalletPickerProps) {
                     alignItems: "center",
                     gap: 14,
                     padding: "14px 16px",
-                    borderRadius: 14,
-                    background: "rgba(255,255,255,0.03)",
-                    border: `1px solid rgba(255,255,255,0.09)`,
-                    color: "#cbd5e1",
+                    borderRadius: light ? 12 : 14,
+                    background: t.rowBg,
+                    border: `1px solid ${t.rowBorder}`,
+                    color: t.rowText,
                     cursor: isConnecting ? "not-allowed" : "pointer",
                     opacity: isConnecting ? 0.55 : 1,
                     textAlign: "left",
@@ -178,32 +200,32 @@ export function WalletPicker({ open, onClose }: WalletPickerProps) {
                   }}
                   onMouseEnter={(e) => {
                     if (isConnecting) return;
-                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)";
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = `${w.color}55`;
+                    (e.currentTarget as HTMLButtonElement).style.background = t.rowHoverBg;
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = w.color;
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.03)";
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.09)";
+                    (e.currentTarget as HTMLButtonElement).style.background = t.rowBg;
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = t.rowBorder;
                   }}
                 >
                   <span style={{
                     width: 40,
                     height: 40,
                     borderRadius: 12,
-                    background: `${w.color}1a`,
-                    border: `1px solid ${w.color}33`,
+                    background: light ? "#EFE9DC" : `${w.color}1a`,
+                    border: light ? "1px solid #C9BEA8" : `1px solid ${w.color}33`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     flexShrink: 0,
                   }}>
-                    <Icon name="wallet" size={19} color={w.color} />
+                    <Icon name="wallet" size={19} color={light ? "#3E2F21" : w.color} />
                   </span>
                   <span style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
-                    <span style={{ fontSize: 15, fontWeight: 700, color: "#f1f5f9" }}>{w.label}</span>
-                    <span style={{ fontSize: 11, color: "#475569" }}>{w.sublabel}</span>
+                    <span style={{ fontSize: 15, fontWeight: 700, color: t.rowText }}>{w.label}</span>
+                    <span style={{ fontSize: 11, color: t.rowSub }}>{w.sublabel}</span>
                   </span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: w.color, flexShrink: 0 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: light ? "#3E2F21" : w.color, flexShrink: 0 }}>
                     {isConnecting ? "Connecting…" : "Connect →"}
                   </span>
                 </button>
@@ -222,10 +244,10 @@ export function WalletPicker({ open, onClose }: WalletPickerProps) {
                       alignItems: "center",
                       gap: 14,
                       padding: "14px 16px",
-                      borderRadius: 14,
-                      background: "rgba(255,255,255,0.02)",
-                      border: "1px dashed rgba(255,255,255,0.12)",
-                      color: "#475569",
+                      borderRadius: light ? 12 : 14,
+                      background: t.rowInstallBg,
+                      border: `1px dashed ${t.rowInstallBorder}`,
+                      color: t.rowInstallText,
                       cursor: "pointer",
                     }}
                   >
@@ -233,21 +255,21 @@ export function WalletPicker({ open, onClose }: WalletPickerProps) {
                       width: 40,
                       height: 40,
                       borderRadius: 12,
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      background: light ? "#EFE9DC" : "rgba(255,255,255,0.04)",
+                      border: light ? "1px solid #C9BEA8" : "1px solid rgba(255,255,255,0.1)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       opacity: 0.5,
                       flexShrink: 0,
                     }}>
-                      <Icon name="wallet" size={19} color="#64748b" />
+                      <Icon name="wallet" size={19} color={light ? "#5E564B" : "#64748b"} />
                     </span>
                     <span style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
-                      <span style={{ fontSize: 15, fontWeight: 700, color: "#64748b" }}>{w.label}</span>
-                      <span style={{ fontSize: 11, color: "#334155" }}>Not installed</span>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: t.rowInstallText }}>{w.label}</span>
+                      <span style={{ fontSize: 11, color: t.rowInstallText }}>Not installed</span>
                     </span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", flexShrink: 0 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: t.rowInstallText, flexShrink: 0 }}>
                       Install →
                     </span>
                   </div>
@@ -258,7 +280,7 @@ export function WalletPicker({ open, onClose }: WalletPickerProps) {
         </div>
 
         {/* Footer */}
-        <p style={{ fontSize: 11, color: "#334155", textAlign: "center", margin: 0, lineHeight: 1.5 }}>
+        <p style={{ fontSize: 11, color: t.footer, textAlign: "center", margin: 0, lineHeight: 1.5 }}>
           Testnet only · Auto-funded via Friendbot on connect
         </p>
       </div>

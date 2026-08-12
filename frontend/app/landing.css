@@ -1,0 +1,100 @@
+/* ── Landing page — "Ledger & Seal" identity ─────────────────────────────
+   Scoped to the landing page only. The dashboard keeps its dark theme.     */
+
+.landing {
+  /* ── Tokens ── */
+  --paper: #ffffff;
+  --cream: #efe9dc;
+  --cream-line: #c9bea8;
+  --green: #1c3328;
+  --green-deep: #0f1f18;
+  --green-tile: #1a2e26;
+  --brown: #3e2f21;
+  --brown-deep: #2a1f15;
+  --walnut: #6a3e26;
+  --ink: #201c17;
+  --muted: #5e564b;
+  --brand-cream: #f4efe6;
+
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100dvh;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headlines — serif gravity */
+.landing-serif {
+  font-family: var(--font-serif);
+}
+
+/* Numbers, addresses, contract IDs — monospace in walnut brown */
+.ledger-mono {
+  font-family: var(--font-mono);
+  color: var(--brown);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Thin repeating-tick "dial rule" divider (walnut accent) */
+.dial-rule {
+  height: 10px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--brown) 0,
+    var(--brown) 1px,
+    transparent 1px,
+    transparent 7px
+  );
+}
+
+/* Landing focus ring — deep green instead of the global purple */
+.landing :focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Primary button — flat deep green, no glow, no gradient */
+.btn-ledger {
+  background: var(--green);
+  color: var(--brand-cream);
+  border: 1px solid var(--green-deep);
+  border-radius: 10px;
+  padding: 14px 30px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.btn-ledger:hover {
+  background: var(--green-deep);
+}
+.btn-ledger:active {
+  transform: scale(0.98);
+}
+.btn-ledger:disabled {
+  background: var(--cream-line);
+  border-color: var(--cream-line);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Secondary button — outlined, brown */
+.btn-ledger-outline {
+  background: var(--paper);
+  color: var(--brown);
+  border: 1px solid var(--cream-line);
+  border-radius: 10px;
+  padding: 14px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.btn-ledger-outline:hover {
+  border-color: var(--walnut);
+  color: var(--walnut);
+}

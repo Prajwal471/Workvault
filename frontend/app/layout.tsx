@@ -25,7 +25,13 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <div aria-hidden className="app-texture" />
+        <div aria-hidden className="app-texture">
+          <span className="app-blob app-blob-1" />
+          <span className="app-blob app-blob-2" />
+          <span className="app-blob app-blob-3" />
+          <span className="app-blob app-blob-4" />
+          <span className="app-grain" />
+        </div>
         <WalletProvider>
           {children}
         </WalletProvider>

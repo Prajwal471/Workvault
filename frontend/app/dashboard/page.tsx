@@ -64,8 +64,6 @@ export default function DashboardPage() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <div className="dashboard-bg" />
-
       {/* ── Top nav ─────────────────────────────────────────────────── */}
       <header style={{
         position: "sticky", top: 0, zIndex: 40,

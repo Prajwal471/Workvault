@@ -56,25 +56,28 @@ export default function DashboardPage() {
   const onSendError = (err: string) => {
     const isRejected = err.includes("Rejected") || err.includes("reject");
     const isWallet   = err.includes("WalletNotConnected");
+    const isBalance  = err.includes("InsufficientBalance");
     addToast("error",
-      isWallet ? "Wallet Not Connected" : isRejected ? "Transaction Rejected" : "Transaction Failed",
-      err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|NetworkError):\s*/, "")
+      isWallet ? "Wallet Not Connected" : isRejected ? "Transaction Rejected" : isBalance ? "Insufficient Balance" : "Transaction Failed",
+      err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, "")
     );
   };
   const onVaultError = (err: string) => {
     const isRejected = err.includes("Rejected") || err.includes("reject");
     const isWallet   = err.includes("WalletNotConnected");
+    const isBalance  = err.includes("InsufficientBalance");
     addToast("error",
-      isWallet ? "Wallet Not Connected" : isRejected ? "Transaction Rejected" : "Contract Call Failed",
-      err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|NetworkError):\s*/, "")
+      isWallet ? "Wallet Not Connected" : isRejected ? "Transaction Rejected" : isBalance ? "Insufficient Balance" : "Contract Call Failed",
+      err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, "")
     );
   };
   const onDepositError = (err: string) => {
     const isRejected = err.includes("Rejected") || err.includes("reject");
     const isWallet   = err.includes("WalletNotConnected");
+    const isBalance  = err.includes("InsufficientBalance");
     addToast("error",
-      isWallet ? "Wallet Not Connected" : isRejected ? "Transaction Rejected" : "Deposit Failed",
-      err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|NetworkError):\s*/, "")
+      isWallet ? "Wallet Not Connected" : isRejected ? "Transaction Rejected" : isBalance ? "Insufficient Balance" : "Deposit Failed",
+      err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, "")
     );
   };
 
@@ -271,8 +274,9 @@ export default function DashboardPage() {
               onSuccess={(hash) => addToast("success", "Deliverable Submitted!", "Vault is now In Review.", hash)}
               onError={(err) => {
                 const isRejected = err.includes("Rejected") || err.includes("reject");
-                addToast("error", isRejected ? "Transaction Rejected" : "Submission Failed",
-                  err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|NetworkError):\s*/, ""));
+                const isBalance  = err.includes("InsufficientBalance");
+                addToast("error", isRejected ? "Transaction Rejected" : isBalance ? "Insufficient Balance" : "Submission Failed",
+                  err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, ""));
               }}
             />
           </div>
@@ -281,8 +285,9 @@ export default function DashboardPage() {
               onSuccess={(hash) => addToast("success", "Funds Released!", "Vault is now Completed.", hash)}
               onError={(err) => {
                 const isRejected = err.includes("Rejected") || err.includes("reject");
-                addToast("error", isRejected ? "Transaction Rejected" : "Release Failed",
-                  err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|NetworkError):\s*/, ""));
+                const isBalance  = err.includes("InsufficientBalance");
+                addToast("error", isRejected ? "Transaction Rejected" : isBalance ? "Insufficient Balance" : "Release Failed",
+                  err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, ""));
               }}
             />
           </div>
@@ -297,13 +302,14 @@ export default function DashboardPage() {
         {/* Error reference */}
         <div id="error-reference" style={{ ...card }}>
           <p className="ledger-mono" style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 16 }}>
-            Error Handling · 3 Types (Level 2)
+            Error Handling · 4 Types (Level 2)
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
             {[
               { id: "error-type-1", code: "WalletNotConnected", icon: "wallet" as const, color: "#8a5c1f", bg: "#fbf3e0", border: "#d9bc7a", desc: "Action attempted without a connected wallet." },
-              { id: "error-type-2", code: "TransactionRejected", icon: "x" as const, color: "#8a3a2a", bg: "#fbf3f0", border: "#e3c7c0", desc: "User dismissed the Freighter signing popup." },
-              { id: "error-type-3", code: "ContractCallFailed", icon: "alert" as const, color: "#6a3e26", bg: "#f7f3ea", border: "#dcd3c1", desc: "Soroban contract returned an on-chain error." },
+              { id: "error-type-2", code: "TransactionRejected", icon: "x" as const, color: "#8a3a2a", bg: "#fbf3f0", border: "#e3c7c0", desc: "User dismissed the wallet signing popup." },
+              { id: "error-type-3", code: "InsufficientBalance", icon: "alert" as const, color: "#6a3e26", bg: "#f7f3ea", border: "#dcd3c1", desc: "Account balance is below the requested amount plus network reserve." },
+              { id: "error-type-4", code: "ContractCallFailed", icon: "alert" as const, color: "#6a3e26", bg: "#f7f3ea", border: "#dcd3c1", desc: "Soroban contract returned an on-chain error." },
             ].map(e => (
               <div key={e.code} id={e.id} style={{
                 borderRadius: 12, padding: "14px 16px",

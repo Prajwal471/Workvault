@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useWallet } from "@/context/WalletContext";
-import { sendXLM, TxStage } from "@/lib/stellar";
+import { sendXLM, TxStage, checkSufficientBalance } from "@/lib/stellar";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
@@ -51,6 +51,17 @@ export function SendXLMForm({ onSuccess, onError }: SendXLMFormProps) {
     e.preventDefault();
     if (!validate()) return;
     setErrorMessage(null); setTxHash(null); setStage(null); setTxState("signing");
+
+    if (wallet?.publicKey) {
+      const check = await checkSufficientBalance(wallet.publicKey, amount.trim());
+      if (!check.ok) {
+        setTxState("failed");
+        setErrorMessage(check.error ?? "Insufficient balance");
+        onError?.(check.error ?? "Insufficient balance");
+        return;
+      }
+    }
+
     const result = await sendXLM(wallet?.publicKey ?? "", destination.trim(), amount.trim(), networkPassphrase, (s) => setStage(s));
     if (!result.ok) {
       setTxState("failed");

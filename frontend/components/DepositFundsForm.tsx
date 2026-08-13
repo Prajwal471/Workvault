@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useWallet } from "@/context/WalletContext";
 import { depositFunds, getVault, VaultInfo } from "@/lib/contracts";
-import { TxStage } from "@/lib/stellar";
+import { TxStage, checkSufficientBalance } from "@/lib/stellar";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
@@ -59,6 +59,14 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
     setErrorMsg(null);
     setTxHash(null);
     setStage(null);
+
+    const check = await checkSufficientBalance(wallet.publicKey, xlmAmount);
+    if (!check.ok) {
+      setFormState("failed");
+      setErrorMsg(check.error ?? "Insufficient balance");
+      onError?.(check.error ?? "Insufficient balance");
+      return;
+    }
 
     const result = await depositFunds(wallet.publicKey, vault.id, (s) => setStage(s));
 

@@ -55,13 +55,52 @@ export async function fetchXLMBalance(publicKey: string): Promise<string> {
     if (!res.ok) return "0.00";
 
     const data = await res.json();
-    const xlmBalance = data.balances?.find(
-      (b: any) => b.asset_type === "native"
+    const xlmBalance = (data.balances ?? []).find(
+      (b: { asset_type?: string; balance?: string }) => b.asset_type === "native"
     );
     return xlmBalance ? parseFloat(xlmBalance.balance).toFixed(7) : "0.00";
   } catch {
     return "0.00";
   }
+}
+
+/**
+ * Pre-flight balance check (Error Type 3: InsufficientBalance).
+ * Compares the connected account's XLM balance against a requested amount,
+ * keeping a small network-reserve buffer (min account balance + fee). Returns
+ * a typed result so the UI can surface a friendly error before the wallet
+ * signing popup is ever shown.
+ */
+export interface BalanceCheck {
+  ok: boolean;
+  balanceXLM: number;
+  error?: string;
+}
+
+export async function checkSufficientBalance(
+  publicKey: string,
+  amountXLM: number | string,
+  reserveXLM = 0.5
+): Promise<BalanceCheck> {
+  if (!publicKey) return { ok: false, balanceXLM: 0, error: "WalletNotConnected: Connect your wallet first." };
+
+  const balanceXLM = parseFloat(await fetchXLMBalance(publicKey));
+  const amount =
+    typeof amountXLM === "string" ? parseFloat(amountXLM) : amountXLM;
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return { ok: false, balanceXLM, error: "InsufficientBalance: Enter a valid positive amount." };
+  }
+
+  if (balanceXLM < amount + reserveXLM) {
+    return {
+      ok: false,
+      balanceXLM,
+      error: `InsufficientBalance: Balance ${balanceXLM.toFixed(2)} XLM is below the requested ${amount.toFixed(2)} XLM (plus reserve).`,
+    };
+  }
+
+  return { ok: true, balanceXLM };
 }
 
 // ── Send XLM ──────────────────────────────────────────────────────────────
@@ -144,12 +183,25 @@ export async function sendXLM(
       }
 
       const detail = submitData?.extras?.result_codes?.transaction ?? "unknown";
+      const opCodes = submitData?.extras?.result_codes?.operations ?? [];
+      const underfunded =
+        detail === "tx_insufficient_balance" ||
+        (Array.isArray(opCodes) && opCodes.includes("op_underfunded"));
+
       if (detail === "tx_no_account" && attempt < MAX_SUBMIT_ATTEMPTS - 1) {
         await new Promise((r) => setTimeout(r, 3000));
         continue;
       }
 
-      // Error type 3: network / RPC failure
+      // Error type 3a: account balance too low for the transfer
+      if (underfunded) {
+        return {
+          ok: false,
+          error: "InsufficientBalance: Your account balance is too low for this transfer.",
+        };
+      }
+
+      // Error type 3b: network / RPC failure
       return {
         ok: false,
         error: `ContractCallFailed: Submission failed — ${detail}`,
@@ -160,10 +212,11 @@ export async function sendXLM(
       ok: false,
       error: "ContractCallFailed: Submission failed after retries",
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     return {
       ok: false,
-      error: `NetworkError: ${err?.message ?? "Unexpected error during send"}`,
+      error: `NetworkError: ${msg || "Unexpected error during send"}`,
     };
   }
 }
@@ -264,7 +317,8 @@ export async function submitAndPollSoroban(
     }
 
     return { ok: false, error: "ContractCallFailed: Submission failed after retries" };
-  } catch (err: any) {
-    return { ok: false, error: `NetworkError: ${err?.message ?? "Soroban submit error"}` };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { ok: false, error: `NetworkError: ${msg || "Soroban submit error"}` };
   }
 }

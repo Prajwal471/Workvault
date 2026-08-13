@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useWallet } from "@/context/WalletContext";
 import { createVault, getVaultCount } from "@/lib/contracts";
-import { TxStage } from "@/lib/stellar";
+import { TxStage, checkSufficientBalance } from "@/lib/stellar";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
@@ -42,6 +42,15 @@ export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
     }
 
     const amountStroops = BigInt(Math.round(parsed * 10_000_000));
+
+    const check = await checkSufficientBalance(wallet.publicKey, parsed);
+    if (!check.ok) {
+      setResult({ ok: false, error: check.error });
+      onError?.(check.error ?? "Insufficient balance");
+      setIsSubmitting(false);
+      return;
+    }
+
     const callResult = await createVault(wallet.publicKey, freelancer.trim(), NATIVE_TOKEN_TESTNET, amountStroops, (s) => setStage(s));
     if (callResult.ok) {
       const res = { ok: true, vaultId: callResult.data, hash: callResult.hash };

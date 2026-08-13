@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useWallet } from "@/context/WalletContext";
+import { TxStage } from "@/lib/stellar";
 import { WalletBar } from "@/components/WalletBar";
 import { SendXLMForm } from "@/components/SendXLMForm";
 import { CreateVaultForm } from "@/components/CreateVaultForm";
@@ -44,6 +45,14 @@ export default function DashboardPage() {
   const { wallet, walletReady, balance, balanceHistory, isRefreshingBalance, refreshBalance } = useWallet();
   const router = useRouter();
   const { toasts, addToast, dismiss } = useToast();
+  const pendingToastShown = useRef(false);
+
+  const notifyPending = (s: TxStage) => {
+    if (s !== "broadcast" || pendingToastShown.current) return;
+    pendingToastShown.current = true;
+    addToast("info", "Transaction Pending", "Broadcasting on Stellar Testnet — awaiting finalisation…");
+  };
+  const resetPending = () => { pendingToastShown.current = false; };
 
   useEffect(() => {
     if (walletReady && !wallet) router.replace("/");
@@ -53,31 +62,37 @@ export default function DashboardPage() {
 
   const balanceNum = parseFloat(balance || "0");
 
-  const onSendError = (err: string) => {
+  const onSendError = (err: string, hash?: string) => {
+    resetPending();
     const isRejected = err.includes("Rejected") || err.includes("reject");
     const isWallet   = err.includes("WalletNotConnected");
     const isBalance  = err.includes("InsufficientBalance");
     addToast("error",
       isWallet ? "Wallet Not Connected" : isRejected ? "Transaction Rejected" : isBalance ? "Insufficient Balance" : "Transaction Failed",
-      err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, "")
+      err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, ""),
+      hash
     );
   };
-  const onVaultError = (err: string) => {
+  const onVaultError = (err: string, hash?: string) => {
+    resetPending();
     const isRejected = err.includes("Rejected") || err.includes("reject");
     const isWallet   = err.includes("WalletNotConnected");
     const isBalance  = err.includes("InsufficientBalance");
     addToast("error",
       isWallet ? "Wallet Not Connected" : isRejected ? "Transaction Rejected" : isBalance ? "Insufficient Balance" : "Contract Call Failed",
-      err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, "")
+      err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, ""),
+      hash
     );
   };
-  const onDepositError = (err: string) => {
+  const onDepositError = (err: string, hash?: string) => {
+    resetPending();
     const isRejected = err.includes("Rejected") || err.includes("reject");
     const isWallet   = err.includes("WalletNotConnected");
     const isBalance  = err.includes("InsufficientBalance");
     addToast("error",
       isWallet ? "Wallet Not Connected" : isRejected ? "Transaction Rejected" : isBalance ? "Insufficient Balance" : "Deposit Failed",
-      err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, "")
+      err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, ""),
+      hash
     );
   };
 
@@ -248,20 +263,23 @@ export default function DashboardPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, alignItems: "stretch" }}>
           <div id="send-xlm-section" style={{ display: "flex", flexDirection: "column" }}>
             <SendXLMForm
-              onSuccess={(hash) => addToast("success", "XLM Sent!", "Transaction confirmed on-chain.", hash)}
+              onSuccess={(hash) => { resetPending(); addToast("success", "XLM Sent!", "Transaction confirmed on-chain.", hash); }}
               onError={onSendError}
+              onStage={notifyPending}
             />
           </div>
           <div id="vault-section" style={{ display: "flex", flexDirection: "column" }}>
             <CreateVaultForm
-              onSuccess={(vaultId, hash) => addToast("success", `Vault #${vaultId} Created!`, "Soroban contract called.", hash)}
+              onSuccess={(vaultId, hash) => { resetPending(); addToast("success", `Vault #${vaultId} Created!`, "Soroban contract called.", hash); }}
               onError={onVaultError}
+              onStage={notifyPending}
             />
           </div>
           <div id="deposit-section" style={{ display: "flex", flexDirection: "column" }}>
             <DepositFundsForm
-              onSuccess={(hash) => addToast("success", "Funds Locked!", "XLM is now held in escrow.", hash)}
+              onSuccess={(hash) => { resetPending(); addToast("success", "Funds Locked!", "XLM is now held in escrow.", hash); }}
               onError={onDepositError}
+              onStage={notifyPending}
             />
           </div>
         </div>
@@ -271,24 +289,28 @@ export default function DashboardPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, alignItems: "stretch" }}>
           <div id="deliverable-section" style={{ display: "flex", flexDirection: "column" }}>
             <SubmitDeliverableForm
-              onSuccess={(hash) => addToast("success", "Deliverable Submitted!", "Vault is now In Review.", hash)}
-              onError={(err) => {
+              onSuccess={(hash) => { resetPending(); addToast("success", "Deliverable Submitted!", "Vault is now In Review.", hash); }}
+              onError={(err, hash) => {
+                resetPending();
                 const isRejected = err.includes("Rejected") || err.includes("reject");
                 const isBalance  = err.includes("InsufficientBalance");
                 addToast("error", isRejected ? "Transaction Rejected" : isBalance ? "Insufficient Balance" : "Submission Failed",
-                  err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, ""));
+                  err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, ""), hash);
               }}
+              onStage={notifyPending}
             />
           </div>
           <div id="release-section" style={{ display: "flex", flexDirection: "column" }}>
             <ApproveReleaseForm
-              onSuccess={(hash) => addToast("success", "Funds Released!", "Vault is now Completed.", hash)}
-              onError={(err) => {
+              onSuccess={(hash) => { resetPending(); addToast("success", "Funds Released!", "Vault is now Completed.", hash); }}
+              onError={(err, hash) => {
+                resetPending();
                 const isRejected = err.includes("Rejected") || err.includes("reject");
                 const isBalance  = err.includes("InsufficientBalance");
                 addToast("error", isRejected ? "Transaction Rejected" : isBalance ? "Insufficient Balance" : "Release Failed",
-                  err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, ""));
+                  err.replace(/^(WalletNotConnected|TransactionRejected|ContractCallFailed|InsufficientBalance|NetworkError):\s*/, ""), hash);
               }}
+              onStage={notifyPending}
             />
           </div>
         </div>

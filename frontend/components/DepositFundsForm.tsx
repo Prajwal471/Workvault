@@ -11,14 +11,15 @@ import { TxStepper } from "@/components/ui/TxStepper";
 
 interface DepositFundsFormProps {
   onSuccess?: (hash: string) => void;
-  onError?: (error: string) => void;
+  onError?: (error: string, hash?: string) => void;
+  onStage?: (stage: TxStage) => void;
 }
 
 type FormState = "idle" | "looking-up" | "ready" | "depositing" | "success" | "failed";
 
 const STROOP = 10_000_000n;
 
-export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) {
+export function DepositFundsForm({ onSuccess, onError, onStage }: DepositFundsFormProps) {
   const { wallet, refreshBalance } = useWallet();
 
   const [vaultIdInput, setVaultIdInput] = useState("");
@@ -68,12 +69,12 @@ export function DepositFundsForm({ onSuccess, onError }: DepositFundsFormProps) 
       return;
     }
 
-    const result = await depositFunds(wallet.publicKey, vault.id, (s) => setStage(s));
+    const result = await depositFunds(wallet.publicKey, vault.id, (s) => { setStage(s); onStage?.(s); });
 
     if (!result.ok) {
       setFormState("failed");
       setErrorMsg(result.error ?? "Deposit failed");
-      onError?.(result.error ?? "Deposit failed");
+      onError?.(result.error ?? "Deposit failed", result.hash);
       return;
     }
 

@@ -11,12 +11,13 @@ import { TxStepper } from "@/components/ui/TxStepper";
 
 interface SubmitDeliverableFormProps {
   onSuccess?: (hash: string) => void;
-  onError?: (error: string) => void;
+  onError?: (error: string, hash?: string) => void;
+  onStage?: (stage: TxStage) => void;
 }
 
 type FormState = "idle" | "looking-up" | "ready" | "submitting" | "success" | "failed";
 
-export function SubmitDeliverableForm({ onSuccess, onError }: SubmitDeliverableFormProps) {
+export function SubmitDeliverableForm({ onSuccess, onError, onStage }: SubmitDeliverableFormProps) {
   const { wallet } = useWallet();
 
   const [vaultIdInput, setVaultIdInput] = useState("");
@@ -65,12 +66,12 @@ export function SubmitDeliverableForm({ onSuccess, onError }: SubmitDeliverableF
     setUrlError("");
 
     setFormState("submitting"); setErrorMsg(null); setTxHash(null); setStage(null);
-    const result = await submitDeliverable(wallet.publicKey, vault.id, url, (s) => setStage(s));
+    const result = await submitDeliverable(wallet.publicKey, vault.id, url, (s) => { setStage(s); onStage?.(s); });
 
     if (!result.ok) {
       setFormState("failed");
       setErrorMsg(result.error ?? "Submission failed");
-      onError?.(result.error ?? "Submission failed");
+      onError?.(result.error ?? "Submission failed", result.hash);
       return;
     }
     setTxHash(result.hash ?? null);

@@ -11,14 +11,22 @@ import { TxStepper } from "@/components/ui/TxStepper";
 
 interface ApproveReleaseFormProps {
   onSuccess?: (hash: string) => void;
-  onError?: (error: string) => void;
+  onError?: (error: string, hash?: string) => void;
+  onStage?: (stage: TxStage) => void;
 }
 
 type FormState = "idle" | "looking-up" | "ready" | "releasing" | "success" | "failed";
 
 const STROOP = 10_000_000n;
 
-export function ApproveReleaseForm({ onSuccess, onError }: ApproveReleaseFormProps) {
+interface VaultPreviewRow {
+  label: string;
+  value: string;
+  mono?: boolean;
+  link?: string;
+}
+
+export function ApproveReleaseForm({ onSuccess, onError, onStage }: ApproveReleaseFormProps) {
   const { wallet, refreshBalance } = useWallet();
 
   const [vaultIdInput, setVaultIdInput] = useState("");
@@ -51,11 +59,11 @@ export function ApproveReleaseForm({ onSuccess, onError }: ApproveReleaseFormPro
     if (!wallet || !vault) return;
     setFormState("releasing"); setErrorMsg(null); setTxHash(null); setStage(null);
 
-    const result = await approveAndRelease(wallet.publicKey, vault.id, (s) => setStage(s));
+    const result = await approveAndRelease(wallet.publicKey, vault.id, (s) => { setStage(s); onStage?.(s); });
     if (!result.ok) {
       setFormState("failed");
       setErrorMsg(result.error ?? "Release failed");
-      onError?.(result.error ?? "Release failed");
+      onError?.(result.error ?? "Release failed", result.hash);
       return;
     }
     setTxHash(result.hash ?? null);
@@ -133,16 +141,16 @@ export function ApproveReleaseForm({ onSuccess, onError }: ApproveReleaseFormPro
                   { label: "Escrow amount", value: `${xlmAmount.toLocaleString()} XLM` },
                   { label: "Freelancer", value: `${vault.freelancer.slice(0,8)}…${vault.freelancer.slice(-6)}`, mono: true },
                   ...(vault.proofUrl ? [{ label: "Proof URL", value: vault.proofUrl, link: vault.proofUrl }] : []),
-                ].map(row => (
+                ].map((row: VaultPreviewRow) => (
                   <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
                     <span className="ledger-mono" style={{ fontSize: 11, color: "var(--muted)", flexShrink: 0 }}>{row.label}</span>
-                    {(row as any).link ? (
-                      <a href={(row as any).link} target="_blank" rel="noopener noreferrer"
+                    {row.link ? (
+                      <a href={row.link} target="_blank" rel="noopener noreferrer"
                         style={{ fontSize: 12, color: "var(--green)", wordBreak: "break-all", textDecoration: "underline", textAlign: "right" }}>
                         {row.value.length > 40 ? row.value.slice(0, 40) + "…" : row.value}
                       </a>
                     ) : (
-                      <span style={{ fontSize: 12, color: "var(--brown)", fontFamily: (row as any).mono ? "var(--font-mono)" : "inherit", textAlign: "right" }}>
+                      <span style={{ fontSize: 12, color: "var(--brown)", fontFamily: row.mono ? "var(--font-mono)" : "inherit", textAlign: "right" }}>
                         {row.value}
                       </span>
                     )}

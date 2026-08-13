@@ -13,10 +13,11 @@ const NATIVE_TOKEN_TESTNET = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2H
 
 interface CreateVaultFormProps {
   onSuccess?: (vaultId: bigint, hash: string) => void;
-  onError?: (error: string) => void;
+  onError?: (error: string, hash?: string) => void;
+  onStage?: (stage: TxStage) => void;
 }
 
-export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
+export function CreateVaultForm({ onSuccess, onError, onStage }: CreateVaultFormProps) {
   const { wallet } = useWallet();
 
   const [freelancer, setFreelancer]   = useState("");
@@ -51,7 +52,7 @@ export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
       return;
     }
 
-    const callResult = await createVault(wallet.publicKey, freelancer.trim(), NATIVE_TOKEN_TESTNET, amountStroops, (s) => setStage(s));
+    const callResult = await createVault(wallet.publicKey, freelancer.trim(), NATIVE_TOKEN_TESTNET, amountStroops, (s) => { setStage(s); onStage?.(s); });
     if (callResult.ok) {
       const res = { ok: true, vaultId: callResult.data, hash: callResult.hash };
       setResult(res);
@@ -59,7 +60,7 @@ export function CreateVaultForm({ onSuccess, onError }: CreateVaultFormProps) {
       setFreelancer(""); setAmountXLM("");
     } else {
       setResult({ ok: false, error: callResult.error });
-      onError?.(callResult.error ?? "Unknown error");
+      onError?.(callResult.error ?? "Unknown error", callResult.hash);
     }
     setIsSubmitting(false);
   };

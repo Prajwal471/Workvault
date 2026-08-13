@@ -10,7 +10,8 @@ import { TxStepper } from "@/components/ui/TxStepper";
 
 interface SendXLMFormProps {
   onSuccess?: (hash: string) => void;
-  onError?: (error: string) => void;
+  onError?: (error: string, hash?: string) => void;
+  onStage?: (stage: TxStage) => void;
 }
 
 type TxState = "idle" | "signing" | "pending" | "success" | "failed";
@@ -23,7 +24,7 @@ const stateLabel: Record<TxState, string> = {
   failed: "Try again",
 };
 
-export function SendXLMForm({ onSuccess, onError }: SendXLMFormProps) {
+export function SendXLMForm({ onSuccess, onError, onStage }: SendXLMFormProps) {
   const { wallet, networkPassphrase, refreshBalance } = useWallet();
 
   const [destination, setDestination] = useState("");
@@ -62,11 +63,11 @@ export function SendXLMForm({ onSuccess, onError }: SendXLMFormProps) {
       }
     }
 
-    const result = await sendXLM(wallet?.publicKey ?? "", destination.trim(), amount.trim(), networkPassphrase, (s) => setStage(s));
+    const result = await sendXLM(wallet?.publicKey ?? "", destination.trim(), amount.trim(), networkPassphrase, (s) => { setStage(s); onStage?.(s); });
     if (!result.ok) {
       setTxState("failed");
       setErrorMessage(result.error ?? "Transaction failed");
-      onError?.(result.error ?? "Transaction failed");
+      onError?.(result.error ?? "Transaction failed", result.hash);
       return;
     }
     setTxState("pending"); setTxHash(result.hash ?? null);

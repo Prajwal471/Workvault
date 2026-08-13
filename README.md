@@ -40,7 +40,7 @@ stellar-workvault/
 │       ├── storage.rs      # Persistent + instance storage helpers
 │       ├── error.rs        # ContractError enum (6 variants)
 │       └── tests.rs        # 8 unit tests
-└── frontend/               # Next.js 14 + TypeScript + Tailwind frontend
+└── frontend/               # Next.js 16 + TypeScript + Tailwind frontend
     ├── app/
     │   ├── page.tsx        # Landing — connect wallet
     │   └── dashboard/      # Main app (balance, send XLM, vault creation)
@@ -130,7 +130,7 @@ Visit: http://localhost:3000
 
 ## Level 2 Checklist ✅
 
-- [x] 3 error types: `WalletNotConnected`, `TransactionRejected`, `ContractCallFailed`
+- [x] 4 error types: `WalletNotConnected`, `TransactionRejected`, `InsufficientBalance`, `ContractCallFailed`
 - [x] Contract deployed on Testnet (see deployed ID below)
 - [x] Contract called from frontend (`create_vault`)
 - [x] Transaction status visible (Pending → Success/Failed)
@@ -156,12 +156,13 @@ Live transaction calling the deployed contract — verifiable on Stellar Explore
 | | |
 |---|---|
 | Function | `create_vault(client, freelancer, token, amount)` |
-| Transaction hash | `d33f6990178296046853554007e74b3a7f941f7ec8e6dc7373a95f725a00f8a7` |
-| Ledger | 4089944 |
-| Time | 2026-08-11 17:53:21 UTC |
+| Vault ID | `13` |
+| Transaction hash | `5cc3cf6db36b028710c2e6b5304d8abe662b20c5ec8f73f4bb80610139092bd4` |
+| Ledger | 4124772 |
+| Time | 2026-08-13 18:20:09 UTC |
 
-- [StellarExpert — transaction](https://stellar.expert/explorer/testnet/tx/d33f6990178296046853554007e74b3a7f941f7ec8e6dc7373a95f725a00f8a7)
-- [Horizon — transaction](https://horizon-testnet.stellar.org/transactions/d33f6990178296046853554007e74b3a7f941f7ec8e6dc7373a95f725a00f8a7)
+- [StellarExpert — transaction](https://stellar.expert/explorer/testnet/tx/5cc3cf6db36b028710c2e6b5304d8abe662b20c5ec8f73f4bb80610139092bd4)
+- [Horizon — transaction](https://horizon-testnet.stellar.org/transactions/5cc3cf6db36b028710c2e6b5304d8abe662b20c5ec8f73f4bb80610139092bd4)
 
 ---
 

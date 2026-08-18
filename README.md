@@ -1,5 +1,7 @@
 # Stellar WorkVault
 
+[![CI](https://github.com/Prajwal471/Workvault/actions/workflows/ci.yml/badge.svg)](https://github.com/Prajwal471/Workvault/actions/workflows/ci.yml)
+
 > Freelance escrow with portable, on-chain reputation — built on Stellar Soroban.
 
 A client locks milestone payments into a Soroban vault; a freelancer submits proof
@@ -197,6 +199,7 @@ chore: ignore frontend build artifacts and env files
 
 ## See Also
 
+- [ROADMAP.md](./ROADMAP.md) — project milestones and commit targets
 - [DECISIONS.md](./DECISIONS.md) — design choices and reasoning
 - [Stellar Docs](https://developers.stellar.org/)
 - [Soroban SDK Docs](https://docs.rs/soroban-sdk)

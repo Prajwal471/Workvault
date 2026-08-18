@@ -6,8 +6,8 @@ use soroban_sdk::{
     Address, Env, String,
 };
 
-use crate::{WorkVaultContract, WorkVaultContractClient};
 use crate::types::VaultStatus;
+use crate::{WorkVaultContract, WorkVaultContractClient};
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -27,7 +27,7 @@ fn setup_token(env: &Env, admin: &Address, user: &Address, balance: i128) -> Add
 }
 
 /// Register the WorkVault contract and return a client.
-fn setup_contract(env: &Env) -> (Address, WorkVaultContractClient) {
+fn setup_contract(env: &Env) -> (Address, WorkVaultContractClient<'_>) {
     let id = env.register(WorkVaultContract, ());
     let client = WorkVaultContractClient::new(env, &id);
     (id, client)

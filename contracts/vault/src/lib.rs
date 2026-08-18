@@ -16,6 +16,7 @@ pub use types::{VaultInfo, VaultStatus};
 pub struct WorkVaultContract;
 
 #[contractimpl]
+#[allow(deprecated)]
 impl WorkVaultContract {
     // ── Vault Lifecycle ────────────────────────────────────────────────────
 
@@ -59,11 +60,7 @@ impl WorkVaultContract {
 
     /// Client locks funds into the contract.
     /// Emits: ("vault", "funded") → (vault_id, amount)
-    pub fn deposit_funds(
-        env: Env,
-        vault_id: u64,
-        client: Address,
-    ) -> Result<(), ContractError> {
+    pub fn deposit_funds(env: Env, vault_id: u64, client: Address) -> Result<(), ContractError> {
         client.require_auth();
 
         let mut vault = storage::read_vault(&env, vault_id)?;
@@ -79,7 +76,7 @@ impl WorkVaultContract {
         }
 
         let token_client = token::Client::new(&env, &vault.token);
-        token_client.transfer(&client, &env.current_contract_address(), &vault.amount);
+        token_client.transfer(&client, env.current_contract_address(), &vault.amount);
 
         vault.status = VaultStatus::Funded;
         storage::write_vault(&env, &vault);
@@ -163,11 +160,7 @@ impl WorkVaultContract {
 
     /// Cancel a vault that has not been funded yet.
     /// Emits: ("vault", "cancel") → vault_id
-    pub fn cancel_vault(
-        env: Env,
-        vault_id: u64,
-        client: Address,
-    ) -> Result<(), ContractError> {
+    pub fn cancel_vault(env: Env, vault_id: u64, client: Address) -> Result<(), ContractError> {
         client.require_auth();
 
         let mut vault = storage::read_vault(&env, vault_id)?;
@@ -183,10 +176,8 @@ impl WorkVaultContract {
         vault.status = VaultStatus::Cancelled;
         storage::write_vault(&env, &vault);
 
-        env.events().publish(
-            (symbol_short!("vault"), symbol_short!("cancel")),
-            vault_id,
-        );
+        env.events()
+            .publish((symbol_short!("vault"), symbol_short!("cancel")), vault_id);
 
         Ok(())
     }

@@ -240,7 +240,6 @@ chore: ignore frontend build artifacts and env files
 
 ## See Also
 
-
 - [ROADMAP.md](./ROADMAP.md) — project milestones and commit targets
 - [DECISIONS.md](./DECISIONS.md) — design choices and reasoning
 - [Stellar Docs](https://developers.stellar.org/)

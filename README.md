@@ -34,7 +34,7 @@ builds a verifiable, portable work-history record the freelancer owns — not th
 
 ### Demo Video
 
-🎬 [Watch the demo video](PLACEHOLDER_VIDEO_LINK)
+🎬 Watch the demo video: https://youtu.be/NGgDidEXL7s
 
 ---
 

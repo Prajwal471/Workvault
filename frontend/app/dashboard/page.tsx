@@ -23,7 +23,7 @@ const card: React.CSSProperties = {
   border: "1px solid var(--cream-line)",
   background: "var(--paper)",
   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
-  padding: "28px 28px",
+  padding: "clamp(16px, 4vw, 28px)",
 };
 
 /** Shared section divider — dial rule + uppercase ledger label. */

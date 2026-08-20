@@ -12,7 +12,7 @@ interface CardProps {
 
 const base: React.CSSProperties = {
   borderRadius: 20,
-  padding: "28px",
+  padding: "clamp(16px, 4vw, 28px)",
   display: "flex",
   flexDirection: "column",
   gap: 20,

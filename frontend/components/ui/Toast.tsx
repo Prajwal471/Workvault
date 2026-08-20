@@ -57,7 +57,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
   return (
     <div
       className={[
-        "flex items-start gap-3 p-4 rounded-xl border shadow-lg max-w-sm w-full",
+        "flex items-start gap-3 p-4 rounded-xl border shadow-lg max-w-[min(24rem,calc(100vw-2rem))]",
         "transition-all duration-300",
         toastStyles[toast.type],
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
@@ -106,7 +106,7 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   return (
     <div
       id="toast-container"
-      className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 items-end pointer-events-none"
+      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col gap-3 items-end pointer-events-none w-[min(24rem,calc(100vw-2rem))]"
     >
       {toasts.map((t) => (
         <div key={t.id} className="pointer-events-auto">

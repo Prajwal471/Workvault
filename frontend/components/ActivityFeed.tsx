@@ -92,9 +92,9 @@ export function ActivityFeed({ onOpenVault, highlightKey }: ActivityFeedProps) {
         accent="var(--green)"
         title="Activity Feed"
         subtitle="last 200 ledgers"
-        style={{ padding: "18px 24px" }}
+        style={{ padding: "clamp(12px, 3vw, 18px) clamp(12px, 3vw, 24px)" }}
         right={
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
             {lastPoll && (
               <span className="ledger-mono" style={{ fontSize: 11, color: "var(--muted-soft)" }}>
                 updated {timeAgo(lastPoll.toISOString())}
@@ -206,7 +206,7 @@ export function ActivityFeed({ onOpenVault, highlightKey }: ActivityFeedProps) {
                 style={{
                   display: "flex", alignItems: "center", gap: 14,
                   width: "100%", textAlign: "left",
-                  padding: "10px 24px",
+                  padding: "10px clamp(12px, 3vw, 24px)",
                   background: isNew ? "rgba(28,51,40,0.05)" : "transparent",
                   border: "none", borderLeft: isNew ? "2px solid var(--green)" : "2px solid transparent",
                   borderBottom: "1px solid rgba(201,190,168,0.25)",
@@ -223,7 +223,7 @@ export function ActivityFeed({ onOpenVault, highlightKey }: ActivityFeedProps) {
                 key={ev.id}
                 style={{
                   display: "flex", alignItems: "center", gap: 14,
-                  padding: "10px 24px",
+                  padding: "10px clamp(12px, 3vw, 24px)",
                   background: isNew ? "rgba(28,51,40,0.05)" : "transparent",
                   borderLeft: isNew ? "2px solid var(--green)" : "2px solid transparent",
                   transition: "background 0.4s, border-color 0.4s",

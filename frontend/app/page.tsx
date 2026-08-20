@@ -68,20 +68,20 @@ export default function LandingPage() {
           <Logo variant="brand" size={40} tagline="Testnet" />
 
           {connected ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
               <Link href="/dashboard" style={{ textDecoration: "none" }}>
-                <button id="nav-dashboard-btn" className="btn-ledger">
+                <button id="nav-dashboard-btn" className="btn-ledger btn-nav-mobile">
                   Open Dashboard →
                 </button>
               </Link>
-              <button id="nav-disconnect-btn" className="btn-ledger-outline" onClick={disconnect}>
+              <button id="nav-disconnect-btn" className="btn-ledger-outline btn-nav-mobile" onClick={disconnect}>
                 Disconnect
               </button>
             </div>
           ) : (
             <button
               id="nav-connect-btn"
-              className="btn-ledger"
+              className="btn-ledger btn-nav-mobile"
               onClick={() => setShowPicker(true)}
               disabled={isConnecting}
             >
@@ -92,7 +92,7 @@ export default function LandingPage() {
       </header>
 
       {/* ── Hero ──────────────────────────────────────────────────────── */}
-      <section style={{ padding: "72px 24px 88px" }}>
+      <section style={{ padding: "clamp(36px, 6vw, 72px) 24px clamp(48px, 8vw, 88px)" }}>
         <div style={{
           maxWidth: 1120, margin: "0 auto",
           display: "flex", alignItems: "center", gap: 64, flexWrap: "wrap",
@@ -239,7 +239,7 @@ export default function LandingPage() {
 
             <div style={{
               background: "var(--cream)", border: "1px solid var(--cream-line)",
-              borderRadius: 16, padding: "28px 32px",
+              borderRadius: 16, padding: "clamp(16px, 4vw, 28px) clamp(16px, 4vw, 32px)",
               display: "flex", gap: 28, flexWrap: "wrap", alignItems: "center",
             }}>
               <SealMark size={72} />

@@ -16,6 +16,30 @@ builds a verifiable, portable work-history record the freelancer owns — not th
 
 ---
 
+## Screenshots
+
+### Mobile Responsive UI
+
+<!-- Replace with your screenshot: open site in browser → DevTools → toggle device toolbar → select iPhone/Android → screenshot -->
+<img width="375" alt="Mobile responsive UI" src="https://github.com/user-attachments/assets/PLACEHOLDER_MOBILE_SCREENSHOT" />
+
+### CI/CD Pipeline
+
+<!-- Replace with your screenshot: GitHub Actions → show green checkmarks on all jobs -->
+<img width="700" alt="CI/CD pipeline passing" src="https://github.com/user-attachments/assets/PLACEHOLDER_CI_SCREENSHOT" />
+
+### Test Output
+
+<!-- Replace with your screenshot: terminal showing `cargo test` (24 passed) + `npx vitest run` (28 passed) -->
+<img width="700" alt="Test output showing 52 passing tests" src="https://github.com/user-attachments/assets/PLACEHOLDER_TESTS_SCREENSHOT" />
+
+### Demo Video
+
+<!-- Replace with your video link: record 1-2 min walkthrough of connect → create vault → deposit → submit → approve → release -->
+🎬 [Watch the demo video](PLACEHOLDER_VIDEO_LINK)
+
+---
+
 ## Tools & Technologies
 
 | Category | Technology |

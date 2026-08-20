@@ -10,11 +10,9 @@ vi.mock("@/lib/contracts", () => ({
   setMilestones: vi.fn(),
 }));
 
-import { useWallet } from "@/context/WalletContext";
-import { setMilestones } from "@/lib/contracts";
+import { useWallet, type WalletContextValue } from "@/context/WalletContext";
 
 const mockUseWallet = vi.mocked(useWallet);
-const mockSetMilestones = vi.mocked(setMilestones);
 
 function renderForm(props: Partial<React.ComponentProps<typeof SetMilestonesForm>> = {}) {
   return render(
@@ -26,11 +24,36 @@ function renderForm(props: Partial<React.ComponentProps<typeof SetMilestonesForm
   );
 }
 
+function walletValue(overrides: Partial<WalletContextValue>): WalletContextValue {
+  return {
+    wallet: { publicKey: "GCDEF...1234", mode: "freighter", displayKey: "GCDEF…1234" },
+    walletReady: true,
+    balance: "0",
+    balanceHistory: [],
+    networkPassphrase: "Test SDF Network ; September 2015",
+    isConnecting: false,
+    isRefreshingBalance: false,
+    freighterInstalled: true,
+    xbullInstalled: false,
+    albedoAvailable: false,
+    rabetInstalled: false,
+    error: null,
+    connect: vi.fn(),
+    connectXBullWallet: vi.fn(),
+    connectAlbedoWallet: vi.fn(),
+    connectRabetWallet: vi.fn(),
+    disconnect: vi.fn(),
+    watchAddress: vi.fn(),
+    refreshBalance: vi.fn(),
+    clearError: vi.fn(),
+    signTransaction: vi.fn(),
+    ...overrides,
+  } as WalletContextValue;
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
-  mockUseWallet.mockReturnValue({
-    wallet: { publicKey: "GCDEF...1234", mode: "freighter", displayKey: "GCDEF…1234" },
-  } as any);
+  mockUseWallet.mockReturnValue(walletValue({}));
 });
 
 afterEach(() => {
@@ -88,21 +111,21 @@ describe("SetMilestonesForm", () => {
   });
 
   it("shows watch-only warning when wallet mode is watch", () => {
-    mockUseWallet.mockReturnValue({
+    mockUseWallet.mockReturnValue(walletValue({
       wallet: { publicKey: "GCDEF...1234", mode: "watch", displayKey: "GCDEF…1234" },
-    } as any);
+    }));
     renderForm();
     expect(screen.getByText(/Watch-only mode/)).toBeInTheDocument();
   });
 
   it("shows connect warning when no wallet", () => {
-    mockUseWallet.mockReturnValue({ wallet: null } as any);
+    mockUseWallet.mockReturnValue(walletValue({ wallet: null }));
     renderForm();
     expect(screen.getByText(/Connect your wallet first/)).toBeInTheDocument();
   });
 
   it("disables submit when no wallet", () => {
-    mockUseWallet.mockReturnValue({ wallet: null } as any);
+    mockUseWallet.mockReturnValue(walletValue({ wallet: null }));
     renderForm();
     const btn = screen.getByRole("button", { name: /Set Milestones on Testnet/ });
     expect(btn).toBeDisabled();

@@ -35,7 +35,7 @@ export interface SignResult {
   error?: string;
 }
 
-interface WalletContextValue {
+export interface WalletContextValue {
   wallet: ConnectedWallet | null;
   /** True once the initial auto-reconnect check has finished. */
   walletReady: boolean;
@@ -128,6 +128,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         .catch(() => {})
         .finally(() => { if (!cancelled) setWalletReady(true); });
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setWalletReady(true);
     }
     return () => { cancelled = true; };
@@ -148,6 +149,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (wallet) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       refreshBalance();
       const id = setInterval(refreshBalance, 15_000);
       return () => clearInterval(id);
@@ -184,7 +186,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     await doConnect(connectFreighter, "freighter");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [freighterInstalled]);
 
   const connectXBullWallet = useCallback(async () => {
@@ -193,7 +194,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     await doConnect(connectXBull, "xbull");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [xbullInstalled]);
 
   const connectAlbedoWallet = useCallback(async () => {
@@ -206,7 +206,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     await doConnect(connectRabet, "rabet");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rabetInstalled]);
 
   const disconnect = useCallback(() => {

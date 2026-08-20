@@ -103,6 +103,7 @@ export async function fetchVaultEvents(): Promise<VaultEvent[]> {
     });
 
     const json = await res.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rawEvents: any[] = json?.result?.events ?? [];
 
     return rawEvents.map((e): VaultEvent => {

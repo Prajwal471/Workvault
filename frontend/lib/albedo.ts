@@ -42,8 +42,8 @@ export async function connectAlbedo(): Promise<ConnectResult> {
       publicKey: result.pubkey,
       networkPassphrase: TESTNET_PASSPHRASE,
     };
-  } catch (err: any) {
-    const msg: string = err?.message ?? String(err);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     if (msg.toLowerCase().includes("cancel") || msg.toLowerCase().includes("reject") || msg.toLowerCase().includes("denied")) {
       return { ok: false, error: "User closed the Albedo popup." };
     }
@@ -68,8 +68,8 @@ export async function signWithAlbedo(
     }
 
     return { ok: true, signedXdr: result.signed_envelope_xdr };
-  } catch (err: any) {
-    const msg: string = err?.message ?? String(err);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     if (msg.toLowerCase().includes("cancel") || msg.toLowerCase().includes("reject") || msg.toLowerCase().includes("denied")) {
       return { ok: false, error: "TransactionRejected: User cancelled in Albedo." };
     }

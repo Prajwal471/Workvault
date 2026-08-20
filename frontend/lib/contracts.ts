@@ -18,7 +18,7 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import { signWithFreighter } from "./freighter";
-import { submitAndPollSoroban, TxResult, TxStage } from "./stellar";
+import { submitAndPollSoroban, TxStage } from "./stellar";
 
 // ── Config ─────────────────────────────────────────────────────────────────
 
@@ -194,11 +194,12 @@ async function invokeContract<T = void>(
     }
 
     return { ok: true, hash: txResult.hash };
-  } catch (err: any) {
+  } catch (err: unknown) {
     // Error type 3: ContractCallFailed
+    const message = err instanceof Error ? err.message : String(err);
     return {
       ok: false,
-      error: `ContractCallFailed: ${err?.message ?? "Unknown contract error"}`,
+      error: `ContractCallFailed: ${message}`,
     };
   }
 }
@@ -227,7 +228,7 @@ export async function createVault(
     ],
     (val) => {
       const native = scValToNative(val);
-      return typeof native === "bigint" ? native : BigInt(native as any);
+      return typeof native === "bigint" ? native : BigInt(String(native));
     },
     onStage
   );
@@ -283,15 +284,16 @@ export async function getVault(vaultId: bigint): Promise<VaultInfo | null> {
     const returnVal = (simResult as rpc.Api.SimulateTransactionSuccessResponse).result?.retval;
     if (!returnVal) return null;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const native = scValToNative(returnVal) as any;
     const milestonesRaw = native.milestones;
     const milestones: MilestoneInfo[] = Array.isArray(milestonesRaw)
-      ? milestonesRaw.map((ms: any) => ({
-          id: BigInt(ms.id ?? 0),
-          description: ms.description ?? "",
-          amount: BigInt(ms.amount ?? 0),
+      ? milestonesRaw.map((ms: Record<string, unknown>) => ({
+          id: BigInt((ms.id as number | bigint) ?? 0),
+          description: (ms.description as string) ?? "",
+          amount: BigInt((ms.amount as number | bigint) ?? 0),
           status: (typeof ms.status === "string" ? ms.status : Array.isArray(ms.status) ? ms.status[0] : "Pending") as MilestoneStatus,
-          proofUrl: ms.proof_url ?? "",
+          proofUrl: (ms.proof_url as string) ?? "",
         }))
       : [];
     return {
@@ -548,15 +550,16 @@ export async function getMilestones(vaultId: bigint): Promise<MilestoneInfo[]> {
     const returnVal = (simResult as rpc.Api.SimulateTransactionSuccessResponse).result?.retval;
     if (!returnVal) return [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const native = scValToNative(returnVal) as any[];
     if (!Array.isArray(native)) return [];
 
-    return native.map((ms: any) => ({
-      id: BigInt(ms.id ?? 0),
-      description: ms.description ?? "",
-      amount: BigInt(ms.amount ?? 0),
-      status: ms.status ?? "Pending",
-      proofUrl: ms.proof_url ?? "",
+    return native.map((ms: Record<string, unknown>) => ({
+      id: BigInt((ms.id as number | bigint) ?? 0),
+      description: (ms.description as string) ?? "",
+      amount: BigInt((ms.amount as number | bigint) ?? 0),
+      status: (ms.status as MilestoneStatus) ?? "Pending",
+      proofUrl: (ms.proof_url as string) ?? "",
     }));
   } catch {
     return [];

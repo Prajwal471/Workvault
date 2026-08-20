@@ -38,7 +38,6 @@ export function ActivityFeed({ onOpenVault, highlightKey }: ActivityFeedProps) {
   const { wallet } = useWallet();
   const [events, setEvents]     = useState<VaultEvent[]>([]);
   const [filter, setFilter]     = useState<Filter>("all");
-  const [isLive, setIsLive]     = useState(true);
   const [lastPoll, setLastPoll] = useState<Date | null>(null);
   const [newIds, setNewIds]     = useState<Set<string>>(new Set());
   const seenIds                 = useRef<Set<string>>(new Set());
@@ -67,10 +66,10 @@ export function ActivityFeed({ onOpenVault, highlightKey }: ActivityFeedProps) {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     poll();
     const id = setInterval(poll, POLL_MS);
     return () => clearInterval(id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const myKey = highlightKey ?? wallet?.publicKey ?? "";

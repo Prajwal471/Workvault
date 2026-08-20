@@ -23,12 +23,14 @@ const TESTNET_PASSPHRASE = "Test SDF Network ; September 2015";
 /** True if the Rabet extension is installed. */
 export async function isRabetInstalled(): Promise<boolean> {
   if (typeof window === "undefined") return false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return !!(window as any).rabet;
 }
 
 /** Request the user's public key from Rabet. */
 export async function connectRabet(): Promise<ConnectResult> {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rabet = (window as any).rabet;
     if (!rabet) {
       return { ok: false, error: "Rabet extension is not installed. Get it at rabet.io" };
@@ -46,8 +48,8 @@ export async function connectRabet(): Promise<ConnectResult> {
         : TESTNET_PASSPHRASE;
 
     return { ok: true, publicKey: result.publicKey, networkPassphrase };
-  } catch (err: any) {
-    const msg: string = err?.message ?? String(err);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     if (msg.toLowerCase().includes("reject") || msg.toLowerCase().includes("cancel") || msg.toLowerCase().includes("denied")) {
       return { ok: false, error: "User rejected the Rabet connection." };
     }
@@ -61,6 +63,7 @@ export async function signWithRabet(
   networkPassphrase: string
 ): Promise<SignResult> {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rabet = (window as any).rabet;
     if (!rabet) {
       return { ok: false, error: "Rabet extension is not installed." };
@@ -75,8 +78,8 @@ export async function signWithRabet(
     }
 
     return { ok: true, signedXdr: result.xdr };
-  } catch (err: any) {
-    const msg: string = err?.message ?? String(err);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     if (msg.toLowerCase().includes("reject") || msg.toLowerCase().includes("cancel") || msg.toLowerCase().includes("denied")) {
       return { ok: false, error: "TransactionRejected: User rejected the transaction in Rabet." };
     }

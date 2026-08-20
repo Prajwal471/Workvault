@@ -23,12 +23,14 @@ export interface ConnectResult {
 /** True if the xBull extension is present in this browser. */
 export async function isXBullInstalled(): Promise<boolean> {
   if (typeof window === "undefined") return false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return !!(window as any).xBullSDK;
 }
 
 /** Request the user's public key from xBull. */
 export async function connectXBull(): Promise<ConnectResult> {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sdk = (window as any).xBullSDK;
     if (!sdk) {
       return { ok: false, error: "xBull extension is not installed." };
@@ -47,8 +49,8 @@ export async function connectXBull(): Promise<ConnectResult> {
       "Test SDF Network ; September 2015";
 
     return { ok: true, publicKey, networkPassphrase };
-  } catch (err: any) {
-    const msg: string = err?.message ?? String(err);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     if (msg.toLowerCase().includes("reject") || msg.toLowerCase().includes("cancel")) {
       return { ok: false, error: "User rejected the xBull connection." };
     }
@@ -62,6 +64,7 @@ export async function signWithXBull(
   networkPassphrase: string
 ): Promise<SignResult> {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sdk = (window as any).xBullSDK;
     if (!sdk) {
       return { ok: false, error: "xBull extension is not installed." };
@@ -74,8 +77,8 @@ export async function signWithXBull(
     }
 
     return { ok: true, signedXdr };
-  } catch (err: any) {
-    const msg: string = err?.message ?? String(err);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
     if (msg.toLowerCase().includes("reject") || msg.toLowerCase().includes("cancel") || msg.toLowerCase().includes("denied")) {
       return { ok: false, error: "TransactionRejected: User rejected the transaction in xBull." };
     }

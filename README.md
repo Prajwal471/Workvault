@@ -20,26 +20,20 @@ builds a verifiable, portable work-history record the freelancer owns — not th
 
 ### Mobile Responsive UI
 
-<!-- Replace with your screenshot: open site in browser → DevTools → toggle device toolbar → select iPhone/Android → screenshot -->
 <img width="375" alt="Mobile responsive UI" src="https://github.com/user-attachments/assets/857955a3-02d6-49ec-83d2-cecde233f7bd" />
 
 ### CI/CD Pipeline
 
-<!-- Replace with your screenshot: GitHub Actions → show green checkmarks on all jobs -->
 <img width="700" alt="CI/CD pipeline passing" src="https://github.com/user-attachments/assets/334d2dd7-f915-4ec8-8a3b-c44821e1e3f1" />
 
 ### Test Output
 
-<!-- Replace with your screenshot: terminal showing `cargo test` (24 passed) + `npx vitest run` (28 passed) -->
 <img width="700" alt="Test output showing 52 passing tests" src="https://github.com/user-attachments/assets/0a0e68d8-b124-474e-bbfd-202924eab190" />
-
-
 
 <img width="700" alt="Test output showing 52 passing tests" src="https://github.com/user-attachments/assets/006cb2b3-4aa8-43fe-b577-105f60570cae" />
 
 ### Demo Video
 
-<!-- Replace with your video link: record 1-2 min walkthrough of connect → create vault → deposit → submit → approve → release -->
 🎬 [Watch the demo video](PLACEHOLDER_VIDEO_LINK)
 
 ---
@@ -65,18 +59,18 @@ builds a verifiable, portable work-history record the freelancer owns — not th
 stellar-workvault/
 ├── contracts/vault/        # Soroban smart contract (Rust)
 │   └── src/
-│       ├── lib.rs          # 7 public functions (create, deposit, submit, approve, cancel, get, count)
-│       ├── types.rs        # VaultInfo, VaultStatus structs
+│       ├── lib.rs          # 15 public functions (create, deposit, submit, approve, cancel, get, count, set_milestones, submit_milestone, approve_milestone, raise_dispute, refund, set_escrow, get_milestones, get_milestone_count)
+│       ├── types.rs        # VaultInfo, VaultStatus, Milestone, MilestoneStatus structs
 │       ├── storage.rs      # Persistent + instance storage helpers
-│       ├── error.rs        # ContractError enum (6 variants)
-│       └── tests.rs        # 8 unit tests
+│       ├── error.rs        # ContractError enum (11 variants)
+│       └── tests.rs        # 24 unit tests
 └── frontend/               # Next.js 16 + TypeScript + Tailwind frontend
     ├── app/
     │   ├── page.tsx        # Landing — connect wallet
     │   └── dashboard/      # Main app (balance, send XLM, vault creation)
-    ├── components/         # WalletBar, BalanceCard, SendXLMForm, CreateVaultForm ...
+    ├── components/         # WalletBar, ActivityFeed, SetMilestonesForm, RaiseDisputeForm ...
     ├── context/            # WalletContext — global wallet state
-    └── lib/                # freighter.ts, stellar.ts, contracts.ts
+    └── lib/                # contracts.ts, stellar.ts, events.ts, freighter.ts ...
 ```
 
 ---
@@ -147,6 +141,14 @@ Visit: http://localhost:3000
 | `cancel_vault(vault_id, client)` | Client (pre-fund) | Cancels vault, no refund needed |
 | `get_vault(vault_id)` | Public | Returns VaultInfo |
 | `get_vault_count()` | Public | Returns total vaults created |
+| `set_milestones(client, vault_id, descriptions, amounts)` | Client | Sets milestone breakdown for a vault |
+| `submit_milestone_deliverable(vault_id, milestone_id, freelancer, proof_url)` | Freelancer | Submits proof for a specific milestone |
+| `approve_milestone(vault_id, milestone_id, client)` | Client | Approves a milestone, releases its funds |
+| `raise_dispute(vault_id, initiator, reason)` | Client/Freelancer | Raises a dispute on a funded vault |
+| `refund(client, vault_id)` | Client (disputed only) | Refunds client after dispute resolution |
+| `set_escrow(client, vault_id, freelancer, token, amount, deadline)` | Client | Configurable escrow with deadline |
+| `get_milestones(vault_id)` | Public | Returns all milestones for a vault |
+| `get_milestone_count(vault_id)` | Public | Returns milestone count for a vault |
 
 ---
 
@@ -234,6 +236,29 @@ feat: stream contract events in real time
 feat: build dashboard and landing experience with shared UI primitives
 docs: document project, decisions, and agent rules
 chore: ignore frontend build artifacts and env files
+docs: add deployed contract, on-chain proof, and wallet screenshot
+docs: add tools and technologies table to README
+docs: add live demo link and correct framework versions
+feat: add branded WorkVault favicon
+feat: refine favicon with WV monogram mark
+feat: use WV monogram in app logo
+style: subtle radial glow behind dashboard cards
+style: dashboard uses landing bg image
+feat: add disconnect button to landing nav
+style: redesign landing with Ledger & Seal identity
+style: promote Ledger & Seal tokens global, light-theme UI primitives
+style: add animated ambient blob background shared by landing and dashboard
+style: light dashboard shell with brand header and dark passbook balance card
+feat: handle wallet rejection and insufficient balance errors in UI
+feat: improve real-time pending, success, and error state alerts
+docs: finalize setup instructions and update on-chain transaction hash
+docs: add ROADMAP.md, CI workflow, and CI badge
+fix: fmt/clippy cleanup — deprecated events allow, needless borrow, lifetime elision
+feat(L3): production escrow — milestones, disputes, refunds, CI, mobile pass, tests
+fix: resolve all eslint errors for CI
+ci: retrigger workflow
+fix: mobile responsive pass — cards, header, hero, activity feed, toasts
+docs: add screenshot and demo video placeholders to README
 ```
 
 ---

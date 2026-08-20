@@ -21,17 +21,21 @@ builds a verifiable, portable work-history record the freelancer owns — not th
 ### Mobile Responsive UI
 
 <!-- Replace with your screenshot: open site in browser → DevTools → toggle device toolbar → select iPhone/Android → screenshot -->
-<img width="375" alt="Mobile responsive UI" src="https://github.com/user-attachments/assets/PLACEHOLDER_MOBILE_SCREENSHOT" />
+<img width="375" alt="Mobile responsive UI" src="https://github.com/user-attachments/assets/857955a3-02d6-49ec-83d2-cecde233f7bd" />
 
 ### CI/CD Pipeline
 
 <!-- Replace with your screenshot: GitHub Actions → show green checkmarks on all jobs -->
-<img width="700" alt="CI/CD pipeline passing" src="https://github.com/user-attachments/assets/PLACEHOLDER_CI_SCREENSHOT" />
+<img width="700" alt="CI/CD pipeline passing" src="https://github.com/user-attachments/assets/334d2dd7-f915-4ec8-8a3b-c44821e1e3f1" />
 
 ### Test Output
 
 <!-- Replace with your screenshot: terminal showing `cargo test` (24 passed) + `npx vitest run` (28 passed) -->
-<img width="700" alt="Test output showing 52 passing tests" src="https://github.com/user-attachments/assets/PLACEHOLDER_TESTS_SCREENSHOT" />
+<img width="700" alt="Test output showing 52 passing tests" src="https://github.com/user-attachments/assets/0a0e68d8-b124-474e-bbfd-202924eab190" />
+
+
+
+<img width="700" alt="Test output showing 52 passing tests" src="https://github.com/user-attachments/assets/006cb2b3-4aa8-43fe-b577-105f60570cae" />
 
 ### Demo Video
 
@@ -235,6 +239,17 @@ chore: ignore frontend build artifacts and env files
 ---
 
 ## See Also
+
+
+
+<img width="429" height="761" alt="image" src="" />
+<img width="1919" height="654" alt="image" src="" />
+<img width="1007" height="822" alt="image" src="" />
+<img width="1507" height="347" alt="image" src="https://github.com/user-attachments/assets/f6218c85-ae6e-41cd-8b6e-1be52535bd03" />
+
+
+
+
 
 - [ROADMAP.md](./ROADMAP.md) — project milestones and commit targets
 - [DECISIONS.md](./DECISIONS.md) — design choices and reasoning

@@ -223,6 +223,14 @@
                   },
                   {
                     "key": {
+                      "symbol": "milestones"
+                    },
+                    "val": {
+                      "vec": []
+                    }
+                  },
+                  {
+                    "key": {
                       "symbol": "proof_url"
                     },
                     "val": {

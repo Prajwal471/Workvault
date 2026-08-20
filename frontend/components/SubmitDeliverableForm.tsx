@@ -87,13 +87,13 @@ export function SubmitDeliverableForm({ onSuccess, onError, onStage }: SubmitDel
   const busy = formState === "looking-up" || formState === "submitting";
 
   return (
-    <Card id="submit-deliverable-card">
+    <Card id="submit-deliverable-card" style={{ overflow: "hidden", minWidth: 0 }}>
       <CardHeader icon={<Icon name="file" size={18} />} accent="var(--green)" title="Submit Deliverable" subtitle="Freelancer · Submit proof of work" />
 
       {formState !== "success" && (
         <>
           {/* Step 1: Vault lookup */}
-          <form onSubmit={handleLookup} style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
+          <form onSubmit={handleLookup} className="lookup-row" style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
             <div style={{ flex: 1 }}>
               <Input
                 id="deliverable-vault-id" label="Vault ID" placeholder="e.g. 1"
@@ -210,6 +210,16 @@ export function SubmitDeliverableForm({ onSuccess, onError, onStage }: SubmitDel
           </button>
         </div>
       )}
+      <style>{`
+        #submit-deliverable-card .lookup-row { min-width: 0; }
+        @media (max-width: 640px) {
+          #submit-deliverable-card .lookup-row {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          #submit-deliverable-card .lookup-row button { width: 100%; justify-content: center; }
+        }
+      `}</style>
     </Card>
   );
 }

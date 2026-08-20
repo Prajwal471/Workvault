@@ -66,7 +66,7 @@ export function CreateVaultForm({ onSuccess, onError, onStage }: CreateVaultForm
   };
 
   return (
-    <Card id="create-vault-form-card">
+    <Card id="create-vault-form-card" style={{ overflow: "hidden", minWidth: 0 }}>
       <CardHeader
         icon={<Icon name="lock" size={18} />}
         accent="var(--green)"

@@ -18,4 +18,14 @@ pub enum ContractError {
     NotFunded = 5,
     /// Vault status transition is not permitted.
     InvalidStatus = 6,
+    /// Milestone not found in vault.
+    MilestoneNotFound = 7,
+    /// Milestone amount exceeds vault balance.
+    MilestoneAmountExceedsBalance = 8,
+    /// Cannot set milestones after funding.
+    CannotSetMilestonesAfterFunding = 9,
+    /// Vault must have at least one milestone.
+    NoMilestones = 10,
+    /// Dispute reason is required (non-empty string).
+    DisputeReasonRequired = 11,
 }

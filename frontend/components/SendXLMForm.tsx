@@ -82,7 +82,7 @@ export function SendXLMForm({ onSuccess, onError, onStage }: SendXLMFormProps) {
   const busy = txState === "signing" || txState === "pending";
 
   return (
-    <Card id="send-xlm-form-card">
+    <Card id="send-xlm-form-card" style={{ overflow: "hidden", minWidth: 0 }}>
       <CardHeader icon={<Icon name="send" size={18} />} accent="var(--green)" title="Send XLM" subtitle="Level 1 · Signed with Freighter" />
 
       {/* Form */}

@@ -81,13 +81,13 @@ export function ApproveReleaseForm({ onSuccess, onError, onStage }: ApproveRelea
   const xlmAmount = vault ? Number(vault.amount) / Number(STROOP) : 0;
 
   return (
-    <Card id="approve-release-card">
+    <Card id="approve-release-card" style={{ overflow: "hidden", minWidth: 0 }}>
       <CardHeader icon={<Icon name="release" size={18} />} accent="var(--green)" title="Approve & Release" subtitle="Client · Release escrow to freelancer" />
 
       {formState !== "success" && (
         <>
           {/* Vault lookup */}
-          <form onSubmit={handleLookup} style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
+          <form onSubmit={handleLookup} className="lookup-row" style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
             <div style={{ flex: 1 }}>
               <Input
                 id="approve-vault-id"
@@ -226,6 +226,16 @@ export function ApproveReleaseForm({ onSuccess, onError, onStage }: ApproveRelea
           </button>
         </div>
       )}
+      <style>{`
+        #approve-release-card .lookup-row { min-width: 0; }
+        @media (max-width: 640px) {
+          #approve-release-card .lookup-row {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          #approve-release-card .lookup-row button { width: 100%; justify-content: center; }
+        }
+      `}</style>
     </Card>
   );
 }

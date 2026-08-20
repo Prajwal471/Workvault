@@ -14,6 +14,33 @@ pub enum VaultStatus {
     Completed,
     /// Vault cancelled before funding.
     Cancelled,
+    /// Dispute raised by either party.
+    Disputed,
+}
+
+/// Lifecycle state of a single milestone.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum MilestoneStatus {
+    /// Awaiting freelancer submission.
+    Pending,
+    /// Freelancer submitted proof; awaiting client review.
+    Submitted,
+    /// Client approved; funds for this milestone released.
+    Approved,
+    /// Milestone disputed by either party.
+    Disputed,
+}
+
+/// A single milestone within an escrow vault.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Milestone {
+    pub id: u64,
+    pub description: String,
+    pub amount: i128,
+    pub status: MilestoneStatus,
+    pub proof_url: String,
 }
 
 /// On-chain record of an escrow vault.
@@ -28,6 +55,8 @@ pub struct VaultInfo {
     /// Total locked amount in stroops (or token smallest unit).
     pub amount: i128,
     pub status: VaultStatus,
-    /// Optional proof URL submitted by the freelancer.
+    /// Optional proof URL submitted by the freelancer (legacy single-milestone).
     pub proof_url: String,
+    /// Milestones for this vault (empty = single-deliverable mode).
+    pub milestones: soroban_sdk::Vec<Milestone>,
 }

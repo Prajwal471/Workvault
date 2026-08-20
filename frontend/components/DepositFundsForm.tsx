@@ -104,13 +104,13 @@ export function DepositFundsForm({ onSuccess, onError, onStage }: DepositFundsFo
   const busy = formState === "looking-up" || formState === "depositing";
 
   return (
-    <Card id="deposit-funds-form-card">
+    <Card id="deposit-funds-form-card" style={{ overflow: "hidden", minWidth: 0 }}>
       <CardHeader icon={<Icon name="deposit" size={18} />} accent="var(--green)" title="Deposit Funds" subtitle="Level 2 · Lock XLM into escrow" />
 
       {/* Step 1 — Vault lookup */}
       {formState !== "success" && (
         <form onSubmit={handleLookup} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
+          <div className="lookup-row" style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
             <div style={{ flex: 1 }}>
               <Input
                 id="deposit-vault-id"
@@ -313,6 +313,16 @@ export function DepositFundsForm({ onSuccess, onError, onStage }: DepositFundsFo
           </button>
         </div>
       )}
+      <style>{`
+        #deposit-funds-form-card .lookup-row { min-width: 0; }
+        @media (max-width: 640px) {
+          #deposit-funds-form-card .lookup-row {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          #deposit-funds-form-card .lookup-row button { width: 100%; justify-content: center; }
+        }
+      `}</style>
     </Card>
   );
 }

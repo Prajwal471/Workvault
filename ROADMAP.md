@@ -4,28 +4,28 @@ Feature milestones for the Stellar WorkVault freelance escrow platform.
 
 ---
 
-## Level 3 — Production Escrow (Aug 18–23)
+## Level 3 — Production Escrow (Aug 18–23) ✅
 
 **Goal:** Production-ready escrow with milestones, dispute flow, and on-chain proof.
 
 ### Smart Contract
-- [ ] Milestone-based vault (split payment across deliverables)
-- [ ] `set_escrow` function for configurable escrow terms
-- [ ] Cross-contract calls for token transfers
-- [ ] Dispute event emission
-- [ ] Negative-path test coverage (unauthorized, invalid state, zero amount)
-- [ ] Snapshot regeneration for all test changes
+- [x] Milestone-based vault (split payment across deliverables)
+- [x] `set_escrow` function for configurable escrow terms
+- [x] Cross-contract calls for token transfers
+- [x] Dispute event emission
+- [x] Negative-path test coverage (unauthorized, invalid state, zero amount)
+- [x] Snapshot regeneration for all test changes
 
 ### Frontend
-- [ ] Milestone creation form
-- [ ] Dispute submission form
-- [ ] Mobile-responsive layout pass
-- [ ] Component tests with Vitest
+- [x] Milestone creation form
+- [x] Dispute submission form
+- [x] Mobile-responsive layout pass
+- [x] Component tests with Vitest
 
 ### Infrastructure
-- [ ] CI pipeline (GitHub Actions): Rust lint/test + Next.js lint/build
-- [ ] Redeploy contract to testnet with new ABI
-- [ ] On-chain proof: transaction hash + ledger link
+- [x] CI pipeline (GitHub Actions): Rust lint/test + Next.js lint/build
+- [x] Redeploy contract to testnet with new ABI
+- [x] On-chain proof: transaction hash + ledger link
 
 ---
 

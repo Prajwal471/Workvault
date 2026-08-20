@@ -62,4 +62,5 @@ export const VAULT_STATUS_META: Record<
   InReview:  { label: "In review",              bg: "#fbf3e0", border: "#d9bc7a",        text: "#8a5c1f" },
   Completed: { label: "Completed",              bg: "#e7f2ec", border: "rgba(15,31,24,0.35)", text: "#0f1f18" },
   Cancelled: { label: "Cancelled",              bg: "#fbf3f0", border: "#e3c7c0",        text: "#8a3a2a" },
+  Disputed:  { label: "Disputed",               bg: "#fbf3e0", border: "#c45b4a",        text: "#8a3a2a" },
 };

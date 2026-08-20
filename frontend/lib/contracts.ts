@@ -38,7 +38,8 @@ export type VaultStatus =
   | "Funded"
   | "InReview"
   | "Completed"
-  | "Cancelled";
+  | "Cancelled"
+  | "Disputed";
 
 export interface VaultInfo {
   id: bigint;
@@ -47,6 +48,17 @@ export interface VaultInfo {
   token: string;
   amount: bigint;
   status: VaultStatus;
+  proofUrl: string;
+  milestones: MilestoneInfo[];
+}
+
+export type MilestoneStatus = "Pending" | "Submitted" | "Approved" | "Disputed";
+
+export interface MilestoneInfo {
+  id: bigint;
+  description: string;
+  amount: bigint;
+  status: MilestoneStatus;
   proofUrl: string;
 }
 
@@ -59,6 +71,7 @@ const VAULT_STATUS_NAMES: VaultStatus[] = [
   "InReview",
   "Completed",
   "Cancelled",
+  "Disputed",
 ];
 
 function statusFromScVal(raw: unknown): VaultStatus {
@@ -271,6 +284,16 @@ export async function getVault(vaultId: bigint): Promise<VaultInfo | null> {
     if (!returnVal) return null;
 
     const native = scValToNative(returnVal) as any;
+    const milestonesRaw = native.milestones;
+    const milestones: MilestoneInfo[] = Array.isArray(milestonesRaw)
+      ? milestonesRaw.map((ms: any) => ({
+          id: BigInt(ms.id ?? 0),
+          description: ms.description ?? "",
+          amount: BigInt(ms.amount ?? 0),
+          status: (typeof ms.status === "string" ? ms.status : Array.isArray(ms.status) ? ms.status[0] : "Pending") as MilestoneStatus,
+          proofUrl: ms.proof_url ?? "",
+        }))
+      : [];
     return {
       id: BigInt(native.id ?? 0),
       client: native.client?.toString() ?? "",
@@ -279,6 +302,7 @@ export async function getVault(vaultId: bigint): Promise<VaultInfo | null> {
       amount: BigInt(native.amount ?? 0),
       status: statusFromScVal(native.status),
       proofUrl: native.proof_url ?? "",
+      milestones,
     };
   } catch {
     return null;
@@ -378,4 +402,163 @@ export async function approveAndRelease(
     undefined,
     onStage
   );
+}
+
+/**
+ * Set milestones on a vault (must be in Created status).
+ * Descriptions and amounts must match in length, and amounts must sum to vault total.
+ */
+export async function setMilestones(
+  clientPublicKey: string,
+  vaultId: bigint,
+  descriptions: string[],
+  amounts: bigint[],
+  onStage?: (stage: TxStage) => void
+): Promise<ContractCallResult> {
+  const descScVals = descriptions.map(d => nativeToScVal(d, { type: "string" }));
+  const amtScVals = amounts.map(a => nativeToScVal(a, { type: "i128" }));
+  const descVals = xdr.ScVal.scvVec(descScVals);
+  const amtVals = xdr.ScVal.scvVec(amtScVals);
+
+  return invokeContract(
+    clientPublicKey,
+    "set_milestones",
+    [
+      nativeToScVal(vaultId, { type: "u64" }),
+      new Address(clientPublicKey).toScVal(),
+      descVals,
+      amtVals,
+    ],
+    undefined,
+    onStage
+  );
+}
+
+/**
+ * Freelancer submits proof-of-work for a specific milestone.
+ */
+export async function submitMilestoneDeliverable(
+  freelancerPublicKey: string,
+  vaultId: bigint,
+  milestoneId: bigint,
+  proofUrl: string,
+  onStage?: (stage: TxStage) => void
+): Promise<ContractCallResult> {
+  return invokeContract(
+    freelancerPublicKey,
+    "submit_milestone_deliverable",
+    [
+      nativeToScVal(vaultId, { type: "u64" }),
+      nativeToScVal(milestoneId, { type: "u64" }),
+      new Address(freelancerPublicKey).toScVal(),
+      nativeToScVal(proofUrl, { type: "string" }),
+    ],
+    undefined,
+    onStage
+  );
+}
+
+/**
+ * Client approves a milestone and releases its funds.
+ */
+export async function approveMilestone(
+  clientPublicKey: string,
+  vaultId: bigint,
+  milestoneId: bigint,
+  onStage?: (stage: TxStage) => void
+): Promise<ContractCallResult> {
+  return invokeContract(
+    clientPublicKey,
+    "approve_milestone",
+    [
+      nativeToScVal(vaultId, { type: "u64" }),
+      nativeToScVal(milestoneId, { type: "u64" }),
+      new Address(clientPublicKey).toScVal(),
+    ],
+    undefined,
+    onStage
+  );
+}
+
+/**
+ * Raise a dispute on a funded or in-review vault.
+ */
+export async function raiseDispute(
+  reporterPublicKey: string,
+  vaultId: bigint,
+  reason: string,
+  onStage?: (stage: TxStage) => void
+): Promise<ContractCallResult> {
+  return invokeContract(
+    reporterPublicKey,
+    "raise_dispute",
+    [
+      nativeToScVal(vaultId, { type: "u64" }),
+      new Address(reporterPublicKey).toScVal(),
+      nativeToScVal(reason, { type: "string" }),
+    ],
+    undefined,
+    onStage
+  );
+}
+
+/**
+ * Refund remaining funds to the client (post-dispute).
+ */
+export async function refund(
+  clientPublicKey: string,
+  vaultId: bigint,
+  onStage?: (stage: TxStage) => void
+): Promise<ContractCallResult> {
+  return invokeContract(
+    clientPublicKey,
+    "refund",
+    [
+      nativeToScVal(vaultId, { type: "u64" }),
+      new Address(clientPublicKey).toScVal(),
+    ],
+    undefined,
+    onStage
+  );
+}
+
+/**
+ * Read-only: fetch milestones for a vault.
+ */
+export async function getMilestones(vaultId: bigint): Promise<MilestoneInfo[]> {
+  if (!CONTRACT_ID) return [];
+
+  try {
+    const server = new rpc.Server(RPC_URL);
+    const contract = new Contract(CONTRACT_ID);
+
+    const tx = new TransactionBuilder(simulationAccount(), {
+      fee: BASE_FEE,
+      networkPassphrase: NETWORK_PASSPHRASE,
+    })
+      .addOperation(
+        contract.call("get_milestones", nativeToScVal(vaultId, { type: "u64" }))
+      )
+      .setTimeout(30)
+      .build();
+
+    const simResult = await server.simulateTransaction(tx);
+    if (rpc.Api.isSimulationError(simResult)) return [];
+
+    const returnVal = (simResult as rpc.Api.SimulateTransactionSuccessResponse).result?.retval;
+    if (!returnVal) return [];
+
+    const native = scValToNative(returnVal) as any[];
+    if (!Array.isArray(native)) return [];
+
+    return native.map((ms: any) => ({
+      id: BigInt(ms.id ?? 0),
+      description: ms.description ?? "",
+      amount: BigInt(ms.amount ?? 0),
+      status: ms.status ?? "Pending",
+      proofUrl: ms.proof_url ?? "",
+    }));
+  } catch {
+    return [];
+  }
 }

@@ -139,15 +139,28 @@ Visit: http://localhost:3000
 - [x] Multi-wallet: Freighter (sign) + Watch-only (any address)
 - [x] Real-time: polls transaction status until finalised
 
+## Level 3 Checklist ✅
+
+- [x] Advanced smart contract: milestones, disputes, refunds, multi-role auth
+- [x] Inter-contract communication: `token::Client::transfer` for token-agnostic escrow
+- [x] Event streaming: 9 event types + frontend ActivityFeed with 6s polling
+- [x] CI/CD pipeline: GitHub Actions (Rust fmt/clippy/test + Frontend lint/build)
+- [x] Deployment workflow: `deploy.sh` with fresh deploy + update modes
+- [x] Mobile responsive: all 7 form components with `@media` breakpoints
+- [x] Error handling: 11 contract error variants + TxStepper + form error banners
+- [x] Tests: 24 Rust tests + 28 frontend tests (Vitest)
+- [x] Architecture: types.rs / error.rs / storage.rs separation, frontend lib/ split
+- [x] Documentation: README, ROADMAP, DECISIONS, CI badge
+
 ---
 
 ## Deployed Contract
 
 | Network | Contract ID |
 |---|---|
-| Testnet | `CCUDDA4BJABILGHSV4FDPM3575P7CAL4QAYSKR4N2LQ37F6EJJHQEK2B` |
+| Testnet | `CAQ6QWRDHIF54ECVHAFIZF3CULKDFG6UXZMOYH577HZQODJPDQ7NV2WS` |
 
-[View on StellarExpert](https://stellar.expert/explorer/testnet/contract/CCUDDA4BJABILGHSV4FDPM3575P7CAL4QAYSKR4N2LQ37F6EJJHQEK2B)
+[View on StellarExpert](https://stellar.expert/explorer/testnet/contract/CAQ6QWRDHIF54ECVHAFIZF3CULKDFG6UXZMOYH577HZQODJPDQ7NV2WS)
 
 ---
 

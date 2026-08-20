@@ -1,7 +1,7 @@
 use soroban_sdk::{contracttype, Env};
 
 use crate::error::ContractError;
-use crate::types::VaultInfo;
+use crate::types::{Milestone, VaultInfo};
 
 /// Storage keys used across instance and persistent storage.
 #[contracttype]
@@ -11,6 +11,8 @@ pub enum DataKey {
     VaultCounter,
     /// Per-vault record stored in persistent storage.
     Vault(u64),
+    /// Per-vault milestone list stored in persistent storage.
+    Milestones(u64),
 }
 
 // ── Counter ────────────────────────────────────────────────────────────────
@@ -46,4 +48,21 @@ pub fn read_vault(env: &Env, vault_id: u64) -> Result<VaultInfo, ContractError> 
         .persistent()
         .get(&DataKey::Vault(vault_id))
         .ok_or(ContractError::VaultNotFound)
+}
+
+// ── Milestones ─────────────────────────────────────────────────────────────
+
+/// Persists a milestone list for a vault.
+pub fn write_milestones(env: &Env, vault_id: u64, milestones: &soroban_sdk::Vec<Milestone>) {
+    env.storage()
+        .persistent()
+        .set(&DataKey::Milestones(vault_id), milestones);
+}
+
+/// Reads milestones for a vault. Returns empty vec if none stored.
+pub fn read_milestones(env: &Env, vault_id: u64) -> soroban_sdk::Vec<Milestone> {
+    env.storage()
+        .persistent()
+        .get(&DataKey::Milestones(vault_id))
+        .unwrap_or_else(|| soroban_sdk::Vec::new(env))
 }

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { WalletProvider } from "@/context/WalletContext";
 
@@ -35,6 +37,8 @@ export default function RootLayout({
         <WalletProvider>
           {children}
         </WalletProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

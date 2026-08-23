@@ -17,6 +17,9 @@ builds a verifiable, portable work-history record the freelancer owns — not th
 ---
 
 ## Screenshots
+### Product UI
+
+<img width="1919" height="872" alt="image" src="https://github.com/user-attachments/assets/5d69641d-6842-4fe5-82d3-6a779fb95241" />
 
 ### Mobile Responsive UI
 
@@ -25,6 +28,13 @@ builds a verifiable, portable work-history record the freelancer owns — not th
 ### CI/CD Pipeline
 
 <img width="700" alt="CI/CD pipeline passing" src="https://github.com/user-attachments/assets/334d2dd7-f915-4ec8-8a3b-c44821e1e3f1" />
+
+### Analytics
+
+<img width="1543" height="691" alt="image" src="https://github.com/user-attachments/assets/07da1083-947d-4356-aca1-f79d4a9a9778" />
+<img width="1521" height="343" alt="image" src="https://github.com/user-attachments/assets/6565435f-cb14-4a15-9284-9ae998a02925" />
+
+
 
 ### Test Output
 
@@ -202,8 +212,11 @@ Visit: http://localhost:3000
 
 ### User Onboarding (L4)
 
-- [x] 10+ real users onboarded via testnet
-- [x] Proof of wallet interactions: see screenshots above
+- [x] 10+ real users onboarded via testnet.
+- [x] Proof of wallet interactions: <img width="1890" height="807" alt="image" src="https://github.com/user-attachments/assets/b432ab2f-95d1-49a6-8f46-bb1f3ea20559" />
+                                    <img width="1746" height="695" alt="image" src="https://github.com/user-attachments/assets/9e80ccb3-1d91-45e5-8ada-1536e647f09f" />
+
+
 - [x] User feedback collection: [Google Form](https://docs.google.com/forms/d/e/1FAIpQLScfH3Tm-fXg6l9XOoEp6tnD7_pTLh0DSxU0cYyGzU_xsAWdgQ/viewform?usp=dialog)
 
 ### Feedback Summary (L4)

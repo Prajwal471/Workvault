@@ -116,6 +116,15 @@ export function VaultList({ onAction }: VaultListProps) {
                   <p className="landing-serif tabular-nums" style={{ fontSize: 20, fontWeight: 600, color: "var(--green)", margin: 0 }}>
                     {xlm(v.amount)} XLM
                   </p>
+                  {v.proofUrl && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                      <span className="ledger-mono" style={{ fontSize: 11, color: "var(--muted)" }}>Proof:</span>
+                      <a href={v.proofUrl} target="_blank" rel="noopener noreferrer"
+                        style={{ fontSize: 12, color: "var(--green)", wordBreak: "break-all", textDecoration: "underline" }}>
+                        {v.proofUrl.length > 50 ? v.proofUrl.slice(0, 50) + "…" : v.proofUrl}
+                      </a>
+                    </div>
+                  )}
                 </div>
                 <VaultActions vault={v} onAction={onAction} />
               </div>

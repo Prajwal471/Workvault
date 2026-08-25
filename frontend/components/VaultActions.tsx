@@ -75,15 +75,6 @@ export function VaultActions({ vault, onAction }: VaultActionsProps) {
   }
 
   if (isFreelancer) {
-    if (vault.status === "Funded") {
-      actions.push({
-        label: "Submit Deliverable",
-        action: "submit",
-        fn: () => import("@/lib/contracts").then(m =>
-          m.submitDeliverable(wallet.publicKey, vault.id, "Proof submitted from dashboard")
-        ),
-      });
-    }
     if (vault.status === "Funded" || vault.status === "InReview") {
       actions.push({
         label: "Raise Dispute",

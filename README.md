@@ -271,7 +271,7 @@ Visit: http://localhost:3000
 
 - [x] User feedback collection: [Google Form](https://docs.google.com/forms/d/e/1FAIpQLScfH3Tm-fXg6l9XOoEp6tnD7_pTLh0DSxU0cYyGzU_xsAWdgQ/viewform?usp=dialog)
 - [x] Feedback responses exported to Excel ([view here](https://docs.google.com/spreadsheets/d/1aPnA7AUWlFsF6qHIE3dMODOsVHl9vmPcQN4SMjSiVGA/edit?usp=sharing))
-- [x] Pitch deck: [link TBD]
+- [x] Pitch deck: [PITCH_DECK.md](PITCH_DECK.md)
 
 ### Feedback Iteration Summary (L5)
 

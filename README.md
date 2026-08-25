@@ -69,23 +69,39 @@ builds a verifiable, portable work-history record the freelancer owns — not th
 stellar-workvault/
 ├── contracts/vault/        # Soroban smart contract (Rust)
 │   └── src/
-│       ├── lib.rs          # 15 public functions
+│       ├── lib.rs          # 16 public functions
 │       ├── types.rs        # VaultInfo, VaultStatus, Milestone, MilestoneStatus structs
 │       ├── storage.rs      # Persistent + instance storage helpers
 │       ├── error.rs        # ContractError enum (11 variants)
-│       └── tests.rs        # 24 unit tests
+│       └── tests.rs        # 28 unit tests
 └── frontend/               # Next.js 16 + TypeScript + Tailwind frontend
     ├── app/
     │   ├── page.tsx        # Landing — connect wallet
     │   ├── loading.tsx     # Landing skeleton loader
     │   ├── not-found.tsx   # Global 404 page
     │   ├── api/health/     # Health check endpoint
-    │   └── dashboard/      # Main app (balance, send XLM, vault creation)
+    │   └── dashboard/
+    │       ├── layout.tsx  # Shared shell: header, role toggle, wallet bar, balance card
+    │       ├── page.tsx    # Redirect to role-based panel
+    │       ├── select-role/# Role selection after wallet connect
+    │       ├── client/     # Client panel: create, milestones, deposit, approve
+    │       ├── freelancer/ # Freelancer panel: submit, dispute
     │       ├── loading.tsx # Dashboard skeleton loader
     │       └── error.tsx   # Dashboard error boundary
-    ├── components/         # WalletBar, ActivityFeed, Skeleton, SetMilestonesForm ...
-    ├── context/            # WalletContext — global wallet state
-    └── lib/                # contracts.ts, stellar.ts, events.ts, freighter.ts ...
+    ├── components/
+    │   ├── RoleSelector.tsx    # Role selection UI
+    │   ├── VaultList.tsx       # Filtered vault list by role
+    │   ├── VaultActions.tsx    # Context-sensitive action buttons
+    │   ├── EditMilestoneForm.tsx # Edit milestone before funding
+    │   ├── WalletBar.tsx, CreateVaultForm.tsx, ...
+    │   └── ui/                 # Skeleton, Toast, TxStepper, Card, Input ...
+    ├── context/
+    │   ├── WalletContext.tsx    # Global wallet state (localStorage persistence)
+    │   └── RoleContext.tsx      # Role state (Client/Freelancer)
+    └── lib/
+        ├── contracts.ts        # 16 contract call wrappers
+        ├── myVaults.ts         # Vault aggregation + status metadata
+        ├── events.ts, stellar.ts, freighter.ts ...
 ```
 
 ---
@@ -164,6 +180,7 @@ Visit: http://localhost:3000
 | `set_escrow(client, vault_id, freelancer, token, amount, deadline)` | Client | Configurable escrow with deadline |
 | `get_milestones(vault_id)` | Public | Returns all milestones for a vault |
 | `get_milestone_count(vault_id)` | Public | Returns milestone count for a vault |
+| `update_milestone(vault_id, milestone_id, client, description, amount)` | Client | Updates milestone description/amount before funding |
 
 ---
 
@@ -232,6 +249,41 @@ Visit: http://localhost:3000
 - Improve UI navigation flow — simplify multi-step vault creation with clearer progress indicators
 - Add wallet connection persistence across sessions
 - Expand milestone management with edit/update capabilities
+
+## Level 5 Checklist ✅
+
+- [x] Two-panel dashboard: separate Client and Freelancer views with role toggle
+- [x] Role selection after wallet connect — choose Client or Freelancer
+- [x] Client panel: Create Vault, Set Milestones, Deposit Funds, Approve & Release
+- [x] Freelancer panel: Submit Deliverable, Raise Dispute
+- [x] Vault list filtered by role — shows only vaults where you are the client or freelancer
+- [x] Context-sensitive actions — Fund, Approve, Submit, Dispute based on vault status + role
+- [x] Wallet persistence — localStorage saves wallet across browser sessions
+- [x] Milestone edit/update — update description and amount before funding (`update_milestone` contract function)
+- [x] Contract: 16 functions, 28 tests (4 new for update_milestone)
+- [x] Updated documentation: README, ROADMAP, DECISIONS
+
+### User Onboarding (L5)
+
+- [ ] 50+ testnet users onboarded
+- [ ] Proof of wallet interactions: screenshots of Stellar Expert
+- [ ] User feedback collection: [Google Form](https://docs.google.com/forms/d/e/1FAIpQLScfH3Tm-fXg6l9XOoEp6tnD7_pTLh0DSxU0cYyGzU_xsAWdgQ/viewform?usp=dialog)
+- [ ] Feedback responses exported to Excel (see `user_responses.xlsx`)
+- [ ] Pitch deck: [link TBD]
+
+### Feedback Iteration Summary (L5)
+
+Based on L4 feedback (14 responses, 5/5 avg rating, 95% vault creation rate, 80% would use for real work):
+
+| Feedback | Action Taken | Commit |
+|---|---|---|
+| UI navigation could be improved | Two-panel Client/Freelancer dashboard with role toggle | TBD |
+| Wallet connection persistence | localStorage persistence — wallet reconnects across sessions | TBD |
+| Milestone management needs expansion | `update_milestone` contract function + EditMilestoneForm | TBD |
+
+### Demo
+
+🎬 Updated demo video: TBD (will showcase role selection + two-panel dashboard)
 
 ---
 

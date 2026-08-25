@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useWallet } from "@/context/WalletContext";
+import { useRole } from "@/context/RoleContext";
 import { WalletPicker } from "@/components/WalletPicker";
 import { Logo } from "@/components/Logo";
 import { SealMark } from "@/components/landing/SealMark";
@@ -41,9 +42,19 @@ const STAGES: { stage: string; sealed: boolean; desc: string }[] = [
 
 export default function LandingPage() {
   const { wallet, isConnecting, error, clearError, disconnect } = useWallet();
+  const { role } = useRole();
+  const router = useRouter();
 
   const [showPicker, setShowPicker] = useState(false);
   const connected = !!wallet;
+
+  const goToDashboard = () => {
+    if (role) {
+      router.push(`/dashboard/${role}`);
+    } else {
+      router.push("/dashboard/select-role");
+    }
+  };
 
   return (
     <div className="landing">
@@ -69,11 +80,9 @@ export default function LandingPage() {
 
           {connected ? (
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
-              <Link href="/dashboard" style={{ textDecoration: "none" }}>
-                <button id="nav-dashboard-btn" className="btn-ledger btn-nav-mobile">
-                  Open Dashboard →
-                </button>
-              </Link>
+              <button id="nav-dashboard-btn" className="btn-ledger btn-nav-mobile" onClick={goToDashboard}>
+                Open Dashboard →
+              </button>
               <button id="nav-disconnect-btn" className="btn-ledger-outline btn-nav-mobile" onClick={disconnect}>
                 Disconnect
               </button>
@@ -141,11 +150,9 @@ export default function LandingPage() {
 
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
               {connected ? (
-                <Link href="/dashboard" style={{ textDecoration: "none" }}>
-                  <button id="hero-dashboard-btn" className="btn-ledger" style={{ padding: "16px 36px", fontSize: 16 }}>
-                    Open Dashboard →
-                  </button>
-                </Link>
+                <button id="hero-dashboard-btn" className="btn-ledger" onClick={goToDashboard} style={{ padding: "16px 36px", fontSize: 16 }}>
+                  Open Dashboard →
+                </button>
               ) : (
                 <button
                   id="hero-connect-btn"

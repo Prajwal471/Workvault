@@ -364,6 +364,69 @@ impl WorkVaultContract {
         Ok(())
     }
 
+    /// Update a milestone's description and/or amount before funding.
+    /// Only the client can call this, and only when vault is in Created status.
+    /// Amounts must still sum to vault total after update.
+    /// Emits: ("vault", "ms_updated") → (vault_id, milestone_id)
+    pub fn update_milestone(
+        env: Env,
+        vault_id: u64,
+        milestone_id: u64,
+        client: Address,
+        new_description: String,
+        new_amount: i128,
+    ) -> Result<(), ContractError> {
+        client.require_auth();
+
+        let mut vault = storage::read_vault(&env, vault_id)?;
+
+        if vault.client != client {
+            return Err(ContractError::Unauthorized);
+        }
+
+        if vault.status != VaultStatus::Created {
+            return Err(ContractError::InvalidStatus);
+        }
+
+        if new_amount <= 0 {
+            return Err(ContractError::InvalidAmount);
+        }
+
+        let mut milestones = storage::read_milestones(&env, vault_id);
+        let mut found = false;
+        let mut total: i128 = 0;
+
+        for i in 0..milestones.len() {
+            let mut ms = milestones.get(i).unwrap();
+            total += if ms.id == milestone_id { new_amount } else { ms.amount };
+            if ms.id == milestone_id {
+                ms.description = new_description.clone();
+                ms.amount = new_amount;
+                milestones.set(i, ms);
+                found = true;
+            }
+        }
+
+        if !found {
+            return Err(ContractError::MilestoneNotFound);
+        }
+
+        if total != vault.amount {
+            return Err(ContractError::MilestoneAmountExceedsBalance);
+        }
+
+        vault.milestones = milestones.clone();
+        storage::write_vault(&env, &vault);
+        storage::write_milestones(&env, vault_id, &milestones);
+
+        env.events().publish(
+            (symbol_short!("vault"), symbol_short!("ms_upd")),
+            (vault_id, milestone_id),
+        );
+
+        Ok(())
+    }
+
     /// Raise a dispute on a funded or in-review vault.
     /// Either party (client or freelancer) can raise a dispute.
     /// Emits: ("vault", "disputed") → (vault_id, reporter, reason)

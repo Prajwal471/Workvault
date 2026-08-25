@@ -688,3 +688,116 @@ fn test_full_milestone_lifecycle() {
     assert_eq!(milestones.get(0).unwrap().status, MilestoneStatus::Approved);
     assert_eq!(milestones.get(1).unwrap().status, MilestoneStatus::Approved);
 }
+
+// ── Test 25: update_milestone — happy path ─────────────────────────────────
+
+#[test]
+fn test_update_milestone_happy_path() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &4_000);
+
+    let mut descriptions = soroban_sdk::Vec::new(&env);
+    descriptions.push_back(String::from_str(&env, "Design phase"));
+    descriptions.push_back(String::from_str(&env, "Build phase"));
+
+    let amounts = i128_vec(&env, &[1_500, 2_500]);
+    contract.set_milestones(&vault_id, &client_addr, &descriptions, &amounts);
+
+    // Update milestone 1 description only (keep amount at 1500 so sum stays 4000)
+    let new_desc = String::from_str(&env, "Updated design phase");
+    contract.update_milestone(&vault_id, &1, &client_addr, &new_desc, &1_500);
+
+    let milestones = contract.get_milestones(&vault_id);
+    assert_eq!(milestones.get(0).unwrap().description, String::from_str(&env, "Updated design phase"));
+    assert_eq!(milestones.get(0).unwrap().amount, 1_500);
+
+    // Verify other milestone unchanged
+    assert_eq!(milestones.get(1).unwrap().amount, 2_500);
+}
+
+// ── Test 26: update_milestone — unauthorized ───────────────────────────────
+
+#[test]
+fn test_update_milestone_unauthorized() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let stranger = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &4_000);
+
+    let mut descriptions = soroban_sdk::Vec::new(&env);
+    descriptions.push_back(String::from_str(&env, "Design"));
+    let amounts = i128_vec(&env, &[4_000]);
+    contract.set_milestones(&vault_id, &client_addr, &descriptions, &amounts);
+
+    // Stranger tries to update — should fail (Unauthorized)
+    let new_desc = String::from_str(&env, "Hacked");
+    let result = contract.try_update_milestone(&vault_id, &1, &stranger, &new_desc, &4_000);
+    assert!(result.is_err(), "Non-client update should be rejected");
+}
+
+// ── Test 27: update_milestone — after funding (invalid status) ─────────────
+
+#[test]
+fn test_update_milestone_after_funding() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &4_000);
+
+    let mut descriptions = soroban_sdk::Vec::new(&env);
+    descriptions.push_back(String::from_str(&env, "Design"));
+    let amounts = i128_vec(&env, &[4_000]);
+    contract.set_milestones(&vault_id, &client_addr, &descriptions, &amounts);
+
+    // Fund the vault
+    contract.deposit_funds(&vault_id, &client_addr);
+
+    // Try to update after funding — should fail (InvalidStatus)
+    let new_desc = String::from_str(&env, "Too late");
+    let result = contract.try_update_milestone(&vault_id, &1, &client_addr, &new_desc, &4_000);
+    assert!(result.is_err(), "Update after funding should be rejected");
+}
+
+// ── Test 28: update_milestone — amounts no longer sum to total ─────────────
+
+#[test]
+fn test_update_milestone_wrong_sum() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &4_000);
+
+    let mut descriptions = soroban_sdk::Vec::new(&env);
+    descriptions.push_back(String::from_str(&env, "Design"));
+    descriptions.push_back(String::from_str(&env, "Build"));
+    let amounts = i128_vec(&env, &[1_500, 2_500]);
+    contract.set_milestones(&vault_id, &client_addr, &descriptions, &amounts);
+
+    // Update milestone 1 to 3000 — now sum = 3000 + 2500 = 5500 != 4000
+    let new_desc = String::from_str(&env, "Expensive design");
+    let result = contract.try_update_milestone(&vault_id, &1, &client_addr, &new_desc, &3_000);
+    assert!(result.is_err(), "Mismatched sum should be rejected");
+}

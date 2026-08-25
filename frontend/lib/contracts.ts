@@ -525,6 +525,33 @@ export async function refund(
 }
 
 /**
+ * Update a milestone's description and amount before funding.
+ * Only the client can call this, and only when vault is in Created status.
+ */
+export async function updateMilestone(
+  clientPublicKey: string,
+  vaultId: bigint,
+  milestoneId: bigint,
+  newDescription: string,
+  newAmount: bigint,
+  onStage?: (stage: TxStage) => void
+): Promise<ContractCallResult> {
+  return invokeContract(
+    clientPublicKey,
+    "update_milestone",
+    [
+      nativeToScVal(vaultId, { type: "u64" }),
+      nativeToScVal(milestoneId, { type: "u64" }),
+      new Address(clientPublicKey).toScVal(),
+      nativeToScVal(newDescription, { type: "string" }),
+      nativeToScVal(newAmount, { type: "i128" }),
+    ],
+    undefined,
+    onStage
+  );
+}
+
+/**
  * Read-only: fetch milestones for a vault.
  */
 export async function getMilestones(vaultId: bigint): Promise<MilestoneInfo[]> {

@@ -86,6 +86,7 @@ function shortenKey(key: string): string {
  * connected stays connected, and a disconnect sticks until the user reconnects.
  */
 const SESSION_CONNECTED_KEY = "workvault:session-connected";
+const WALLET_PERSIST_KEY = "workvault:wallet";
 
 // ── Provider ───────────────────────────────────────────────────────────────
 
@@ -113,17 +114,33 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     isRabetInstalled().then(setRabetInstalled);
   }, []);
 
-  // ── Auto-reconnect Freighter (only after an explicit connect this session) ─
+  // ── Auto-reconnect (localStorage persistence + session check) ─
   useEffect(() => {
     let cancelled = false;
     const hasSession = (() => {
       try { return sessionStorage.getItem(SESSION_CONNECTED_KEY) === "1"; }
       catch { return false; }
     })();
-    if (hasSession) {
-      getConnectedPublicKey()
+    // Also check localStorage for persistent wallet info
+    const savedWallet = (() => {
+      try {
+        const raw = localStorage.getItem(WALLET_PERSIST_KEY);
+        if (raw) return JSON.parse(raw) as { publicKey: string; mode: WalletProvider };
+      } catch {}
+      return null;
+    })();
+
+    if (hasSession || savedWallet) {
+      const mode = savedWallet?.mode ?? "freighter";
+      const reconnectFn = mode === "freighter" ? getConnectedPublicKey
+        : mode === "xbull" ? () => savedWallet?.publicKey ? Promise.resolve(savedWallet.publicKey) : Promise.reject("no xbull")
+        : mode === "albedo" ? () => savedWallet?.publicKey ? Promise.resolve(savedWallet.publicKey) : Promise.reject("no albedo")
+        : mode === "rabet" ? () => savedWallet?.publicKey ? Promise.resolve(savedWallet.publicKey) : Promise.reject("no rabet")
+        : () => Promise.reject("unknown mode");
+
+      reconnectFn()
         .then((key) => {
-          if (key && !cancelled) setWallet({ publicKey: key, mode: "freighter", displayKey: shortenKey(key) });
+          if (key && !cancelled) setWallet({ publicKey: key, mode, displayKey: shortenKey(key) });
         })
         .catch(() => {})
         .finally(() => { if (!cancelled) setWalletReady(true); });
@@ -176,6 +193,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     await friendbotFund(pk);
     setWallet({ publicKey: pk, mode, displayKey: shortenKey(pk) });
     try { sessionStorage.setItem(SESSION_CONNECTED_KEY, "1"); } catch {}
+    try { localStorage.setItem(WALLET_PERSIST_KEY, JSON.stringify({ publicKey: pk, mode })); } catch {}
     setIsConnecting(false);
   }
 
@@ -210,6 +228,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   const disconnect = useCallback(() => {
     try { sessionStorage.removeItem(SESSION_CONNECTED_KEY); } catch {}
+    try { localStorage.removeItem(WALLET_PERSIST_KEY); } catch {}
     setWallet(null);
     setBalance("0.00");
     setBalanceHistory([]);
@@ -219,6 +238,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const watchAddress = useCallback((address: string) => {
     setWallet({ publicKey: address, mode: "watch", displayKey: shortenKey(address) });
     try { sessionStorage.setItem(SESSION_CONNECTED_KEY, "1"); } catch {}
+    try { localStorage.setItem(WALLET_PERSIST_KEY, JSON.stringify({ publicKey: address, mode: "watch" })); } catch {}
     setError(null);
   }, []);
 

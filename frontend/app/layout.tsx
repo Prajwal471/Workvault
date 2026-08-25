@@ -3,6 +3,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { WalletProvider } from "@/context/WalletContext";
+import { RoleProvider } from "@/context/RoleContext";
 
 export const metadata: Metadata = {
   title: "Stellar WorkVault — Freelance Escrow on Soroban",
@@ -35,7 +36,9 @@ export default function RootLayout({
           <span className="app-grain" />
         </div>
         <WalletProvider>
-          {children}
+          <RoleProvider>
+            {children}
+          </RoleProvider>
         </WalletProvider>
         <Analytics />
         <SpeedInsights />

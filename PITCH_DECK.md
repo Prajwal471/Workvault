@@ -22,7 +22,7 @@ Freelancers and clients face:
 
 **Stellar WorkVault** — A decentralized escrow platform built on Stellar Soroban smart contracts.
 
-- **Zero platform fees** — Only Stellar network transaction costs (~$0.0001)
+- **Low platform fee** — Just 2% vs Upwork's 10-20% and Fiverr's 20%
 - **Instant settlement** — Funds release in seconds, not weeks
 - **Trustless escrow** — Smart contract holds funds until both parties agree
 - **Milestone-based payments** — Break projects into verifiable deliverables
@@ -102,7 +102,7 @@ Client Reviews → Approves Release → Funds Sent
 
 | Feature | Upwork | Fiverr | Stellar WorkVault |
 |---|---|---|---|
-| Platform Fee | 10-20% | 20% | **0%** |
+| Platform Fee | 10-20% | 20% | **2%** |
 | Payment Speed | 14-30 days | 14 days | **Seconds** |
 | Escrow | Centralized | Centralized | **Smart Contract** |
 | Dispute Resolution | Platform decides | Platform decides | **On-chain** |
@@ -170,7 +170,7 @@ Short-term: Replace platform escrow with smart contracts
 Mid-term: Multi-sig approvals, cross-chain payments, reputation system
 Long-term: DAO-based arbitration, custom token support, global freelance marketplace
 
-> *"We're not building another freelancing platform. We're building the infrastructure that makes platforms obsolete."*
+> *"We're not building another freelancing platform. We're building the infrastructure that undercuts them — 2% instead of 20%."*
 
 ---
 

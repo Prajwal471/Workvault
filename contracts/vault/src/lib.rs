@@ -398,7 +398,11 @@ impl WorkVaultContract {
 
         for i in 0..milestones.len() {
             let mut ms = milestones.get(i).unwrap();
-            total += if ms.id == milestone_id { new_amount } else { ms.amount };
+            total += if ms.id == milestone_id {
+                new_amount
+            } else {
+                ms.amount
+            };
             if ms.id == milestone_id {
                 ms.description = new_description.clone();
                 ms.amount = new_amount;

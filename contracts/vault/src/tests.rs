@@ -715,7 +715,10 @@ fn test_update_milestone_happy_path() {
     contract.update_milestone(&vault_id, &1, &client_addr, &new_desc, &1_500);
 
     let milestones = contract.get_milestones(&vault_id);
-    assert_eq!(milestones.get(0).unwrap().description, String::from_str(&env, "Updated design phase"));
+    assert_eq!(
+        milestones.get(0).unwrap().description,
+        String::from_str(&env, "Updated design phase")
+    );
     assert_eq!(milestones.get(0).unwrap().amount, 1_500);
 
     // Verify other milestone unchanged

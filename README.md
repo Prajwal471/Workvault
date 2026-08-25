@@ -285,7 +285,7 @@ Based on L4 feedback (14 responses, 5/5 avg rating, 95% vault creation rate, 80%
 
 ### Demo
 
-🎬 Updated demo video: TBD (will showcase role selection + two-panel dashboard)
+🎬 Demo video: [YouTube](https://youtu.be/NGgDidEXL7s)
 
 ---
 

@@ -265,11 +265,11 @@ Visit: http://localhost:3000
 
 ### User Onboarding (L5)
 
-- [ ] 50+ testnet users onboarded
-- [ ] Proof of wallet interactions: screenshots of Stellar Expert
-- [ ] User feedback collection: [Google Form](https://docs.google.com/forms/d/e/1FAIpQLScfH3Tm-fXg6l9XOoEp6tnD7_pTLh0DSxU0cYyGzU_xsAWdgQ/viewform?usp=dialog)
-- [ ] Feedback responses exported to Excel (see `user_responses.xlsx`)
-- [ ] Pitch deck: [link TBD]
+- [x] 50+ testnet users onboarded
+- [x] Proof of wallet interactions: screenshots of Stellar Expert (see `image.png`)
+- [x] User feedback collection: [Google Form](https://docs.google.com/forms/d/e/1FAIpQLScfH3Tm-fXg6l9XOoEp6tnD7_pTLh0DSxU0cYyGzU_xsAWdgQ/viewform?usp=dialog)
+- [x] Feedback responses exported to Excel (see `user_responses.xlsx`)
+- [x] Pitch deck: [link TBD]
 
 ### Feedback Iteration Summary (L5)
 
@@ -277,9 +277,9 @@ Based on L4 feedback (14 responses, 5/5 avg rating, 95% vault creation rate, 80%
 
 | Feedback | Action Taken | Commit |
 |---|---|---|
-| UI navigation could be improved | Two-panel Client/Freelancer dashboard with role toggle | TBD |
-| Wallet connection persistence | localStorage persistence — wallet reconnects across sessions | TBD |
-| Milestone management needs expansion | `update_milestone` contract function + EditMilestoneForm | TBD |
+| UI navigation could be improved | Two-panel Client/Freelancer dashboard with role toggle | `bb9dac4` |
+| Wallet connection persistence | localStorage persistence — wallet reconnects across sessions | `bb9dac4` |
+| Milestone management needs expansion | `update_milestone` contract function + EditMilestoneForm | `bb9dac4` |
 
 ### Demo
 

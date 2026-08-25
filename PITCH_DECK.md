@@ -179,6 +179,7 @@ Long-term: DAO-based arbitration, custom token support, global freelance marketp
 **Stellar WorkVault** is live on Testnet.
 
 - **Contract:** `CAQ6QWRDHIF54ECVHAFIZF3CULKDFG6UXZMOYH577HZQODJPDQ7NV2WS`
+- **Slides:** [Google Slides Pitch Deck](https://docs.google.com/presentation/d/1HG2hLmeMyO1UfuIJg_CJCBxiBJ-baLTn/edit?usp=sharing&ouid=102586407769483865786&rtpof=true&sd=true)
 - **Demo:** [workvault-liart.vercel.app](https://workvault-liart.vercel.app)
 - **Code:** [github.com/Prajwal471/Workvault](https://github.com/Prajwal471/Workvault)
 - **Video:** [YouTube Demo](https://youtu.be/NGgDidEXL7s)

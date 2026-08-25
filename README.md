@@ -267,6 +267,8 @@ Visit: http://localhost:3000
 
 - [ ] 50+ testnet users onboarded
 - [ ] Proof of wallet interactions: screenshots of Stellar Expert
+- [ ] <img width="1917" height="861" alt="image" src="https://github.com/user-attachments/assets/bdf22d09-8c5c-47c3-bf91-628ea60a8805" />
+
 - [ ] User feedback collection: [Google Form](https://docs.google.com/forms/d/e/1FAIpQLScfH3Tm-fXg6l9XOoEp6tnD7_pTLh0DSxU0cYyGzU_xsAWdgQ/viewform?usp=dialog)
 - [ ] Feedback responses exported to Excel (see `user_responses.xlsx`)
 - [ ] Pitch deck: [link TBD]

@@ -74,8 +74,8 @@ export async function fetchVaultEvents(): Promise<VaultEvent[]> {
 
     if (!latestLedger) return [];
 
-    // First call: start from 200 ledgers ago; subsequent: from last cursor
-    const startLedger = _startLedger ?? Math.max(1, latestLedger - 200);
+    // First call: start wide enough to cover all contract history (~8 days)
+    const startLedger = _startLedger ?? Math.max(1, latestLedger - 100_000);
 
     // Update cursor for next poll
     _startLedger = latestLedger + 1;

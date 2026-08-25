@@ -26,11 +26,14 @@ export function VaultList({ onAction }: VaultListProps) {
 
     try {
       const count = await getVaultCount();
-      const results: VaultInfo[] = [];
       const key = wallet.publicKey.toLowerCase();
 
-      for (let i = 1; i <= count; i++) {
-        const v = await getVault(BigInt(i));
+      const fetches = await Promise.all(
+        Array.from({ length: count }, (_, i) => getVault(BigInt(i + 1)))
+      );
+
+      const results: VaultInfo[] = [];
+      for (const v of fetches) {
         if (!v) continue;
         const isClient = role === "client" && v.client.toLowerCase() === key;
         const isFreelancer = role === "freelancer" && v.freelancer.toLowerCase() === key;

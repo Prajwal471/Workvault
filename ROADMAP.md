@@ -47,37 +47,38 @@ Feature milestones for the Stellar WorkVault freelance escrow platform.
 
 ---
 
-## Level 5 — Community & Ecosystem (Aug 29–31)
+## Level 5 — Community & Ecosystem (Aug 29–31) ✅
 
 **Goal:** Ecosystem contribution, community building, and mainnet readiness.
 
 ### Smart Contract
-- [ ] Multi-sig vault (two-party release approval)
-- [ ] Multi-sig negative-path tests
+- [x] Multi-sig vault (two-party release approval)
+- [x] Multi-sig negative-path tests (9 new → 37 total)
 
 ### Infrastructure
-- [ ] Mainnet deploy script
-- [ ] Mainnet account funding
+- [x] Mainnet deploy script (`deploy.sh testnet|mainnet`)
+- [ ] Mainnet account funding (blocked — no XLM budget until user funds wallet)
 
 ### Community
-- [ ] Twitter launch thread
-- [ ] Blog / tutorial (ecosystem contribution)
-- [ ] User onboarding guide
+- [x] Twitter launch thread (draft → `docs/launch-thread.md`)
+- [x] Blog / tutorial (draft → `docs/blog-post.md`)
+- [x] User onboarding guide (README + feedback form)
 
 ---
 
-## Level 6 — Advanced Feature (Aug 29–31)
+## Level 6 — Advanced Feature (Aug 29–31) ✅
 
 **Goal:** Advanced feature demonstration with full documentation.
 
 ### Smart Contract
-- [ ] Two-party release approval (multi-sig)
-- [ ] SECURITY.md
+- [x] Two-party release approval (multi-sig) — `request_release` / `approve_release`
+- [x] SECURITY.md (threat model + state machine)
 
 ### Documentation
-- [ ] Monthly growth report
-- [ ] README update (all L5–L6 materials)
-- [ ] Pitch deck
+- [x] Monthly growth report (README metrics + analytics)
+- [x] README update (all L5–L6 materials, mainnet-pending status, improvement plan)
+- [x] Pitch deck (2% platform-fee model)
+- [ ] Mainnet deployment (blocked — pending funding)
 
 ---
 

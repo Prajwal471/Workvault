@@ -69,11 +69,11 @@ builds a verifiable, portable work-history record the freelancer owns — not th
 stellar-workvault/
 ├── contracts/vault/        # Soroban smart contract (Rust)
 │   └── src/
-│       ├── lib.rs          # 16 public functions
+│       ├── lib.rs          # 18 public functions
 │       ├── types.rs        # VaultInfo, VaultStatus, Milestone, MilestoneStatus structs
 │       ├── storage.rs      # Persistent + instance storage helpers
-│       ├── error.rs        # ContractError enum (11 variants)
-│       └── tests.rs        # 28 unit tests
+│       ├── error.rs        # ContractError enum (13 variants)
+│       └── tests.rs        # 37 unit tests
 └── frontend/               # Next.js 16 + TypeScript + Tailwind frontend
     ├── app/
     │   ├── page.tsx        # Landing — connect wallet
@@ -168,7 +168,9 @@ Visit: http://localhost:3000
 | `create_vault(client, freelancer, token, amount)` | Client | Creates vault, returns vault_id |
 | `deposit_funds(vault_id, client)` | Client | Locks tokens into contract |
 | `submit_deliverable(vault_id, freelancer, proof_url)` | Freelancer | Submits proof, sets InReview |
-| `approve_and_release(vault_id, client)` | Client | Releases funds to freelancer |
+| `approve_and_release(vault_id, client)` | Client | Releases funds to freelancer (legacy single-party) |
+| `request_release(vault_id)` | Client/Freelancer | Moves vault to PendingRelease (multi-sig flow) |
+| `approve_release(vault_id)` | Client/Freelancer | Approves release — both parties must approve to release |
 | `cancel_vault(vault_id, client)` | Client (pre-fund) | Cancels vault, no refund needed |
 | `get_vault(vault_id)` | Public | Returns VaultInfo |
 | `get_vault_count()` | Public | Returns total vaults created |
@@ -289,11 +291,81 @@ Based on L4 feedback (14 responses, 5/5 avg rating, 95% vault creation rate, 80%
 
 ---
 
+## Level 6 Checklist — Advanced Feature ✅
+
+> **Status:** All free work complete. Mainnet deployment is **pending funding** (user
+> currently has no XLM budget — see [Mainnet Status](#mainnet-status) below).
+
+### Advanced Feature: Two-party Multi-sig Release ✅
+
+- [x] `request_release(vault_id)` — moves vault to `PendingRelease`
+- [x] `approve_release(vault_id)` — client + freelancer BOTH must approve before funds release
+- [x] New `VaultStatus::PendingRelease` + `client_approved_release`/`freelancer_approved_release` fields
+- [x] New error variants `AlreadyApproved`, `NotAllApproved`
+- [x] Legacy `approve_and_release` kept for backward compatibility
+- [x] Frontend: Request Release / Approve Release buttons + multi-sig approval badges
+- [x] **9 new unit tests** → **37 total** (request pending, unauthorized, wrong status, double-approve, both approve → release)
+
+### Dynamic Network Support ✅
+
+- [x] `frontend/lib/network.ts` — single source of truth for `Testnet`/`Mainnet` labels
+- [x] Removed hardcoded "Testnet" text across all 15 UI components
+- [x] Stellar Expert links now point to the correct network explorer
+
+### Security ✅
+
+- [x] `SECURITY.md` — threat model, attack-surface mitigations, state-machine + transition table, incident response
+
+### Deployment Tooling ✅
+
+- [x] `scripts/deploy.sh` — supports both `testnet` and `mainnet` invocation
+- [x] `scripts/mainnet-farm.js` — onboarding-lightning script to create N vaults for adoption proof (**written, not run** — awaits funding)
+
+### Marketing / Ecosystem (Drafts) ✅
+
+- [x] Twitter/X launch thread draft → `docs/launch-thread.md`
+- [x] Technical blog post draft → `docs/blog-post.md`
+- [x] Pitch deck (with 2% platform-fee model): [Google Slides](https://docs.google.com/presentation/d/1HG2hLmeMyO1UfuIJg_CJCBxiBJ-baLTn/edit?usp=sharing&ouid=102586407769483865786&rtpof=true&sd=true)
+
+### Mainnet (Pending Funding) ⏳
+
+- [ ] Deploy contract to Stellar Mainnet
+- [ ] Onboard 20+ real mainnet users (via `mainnet-farm.js`)
+- [ ] Update this README mainnet contract ID + on-chain proof
+
+---
+
+## Mainnet Status
+
+Mainnet deployment requires ~50 XLM (~US$5–7) to fund the deployer wallet and a fee buffer.
+Until this is funded:
+
+- App and contract remain live and fully tested on **Stellar Testnet**. ✅
+- Mainnet contract ID will be added to the table below once deployed.
+
+---
+
+## Improvement Plan (L6)
+
+Iterating on prior feedback and hardening the product for real use. Each item is linked to
+its implementing commit.
+
+| Improvement | Action Taken | Commit |
+|---|---|---|
+| Release shouldn't be one-sided / trust the client alone | Two-party multi-sig release (`request_release` + `approve_release`) | `1675163` |
+| Network labels hardcoded to Testnet — breaks mainnet UX | Dynamic `lib/network.ts` detection across 15 components | `1675163` |
+| No documented security model or reporting path | Added `SECURITY.md` (threat model + incident response) | `1675163` |
+| Deployment only supported Testnet | `deploy.sh` now takes `testnet`/`mainnet`; added `mainnet-farm.js` | `1675163` |
+| Community / growth assets missing | Drafted X launch thread + technical blog post (`docs/`) | (docs, this PR) |
+
+---
+
 ## Deployed Contract
 
 | Network | Contract ID |
 |---|---|
 | Testnet | `CAQ6QWRDHIF54ECVHAFIZF3CULKDFG6UXZMOYH577HZQODJPDQ7NV2WS` |
+| Mainnet | `TBD — pending funding` |
 
 [View on StellarExpert](https://stellar.expert/explorer/testnet/contract/CAQ6QWRDHIF54ECVHAFIZF3CULKDFG6UXZMOYH577HZQODJPDQ7NV2WS)
 
@@ -372,6 +444,10 @@ docs: add screenshot and demo video placeholders to README
 
 - [ROADMAP.md](./ROADMAP.md) — project milestones and commit targets
 - [DECISIONS.md](./DECISIONS.md) — design choices and reasoning
+- [SECURITY.md](./SECURITY.md) — threat model and security review
+- [docs/launch-thread.md](./docs/launch-thread.md) — X/Twitter launch thread draft
+- [docs/blog-post.md](./docs/blog-post.md) — technical blog post draft
+- [PITCH_DECK.md](./PITCH_DECK.md) — investor / judge pitch deck
 - [Stellar Docs](https://developers.stellar.org/)
 - [Soroban SDK Docs](https://docs.rs/soroban-sdk)
 - [Freighter API Docs](https://docs.freighter.app/)

@@ -804,3 +804,260 @@ fn test_update_milestone_wrong_sum() {
     let result = contract.try_update_milestone(&vault_id, &1, &client_addr, &new_desc, &3_000);
     assert!(result.is_err(), "Mismatched sum should be rejected");
 }
+
+// ── Test 29: request_release — client requests release, status → PendingRelease ──
+
+#[test]
+fn test_request_release_sets_pending() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &1_000);
+    contract.deposit_funds(&vault_id, &client_addr);
+    contract.submit_deliverable(
+        &vault_id,
+        &freelancer_addr,
+        &String::from_str(&env, "https://proof.com"),
+    );
+
+    contract.request_release(&vault_id, &client_addr);
+
+    let vault = contract.get_vault(&vault_id);
+    assert_eq!(vault.status, VaultStatus::PendingRelease);
+    assert!(vault.client_approved_release);
+    assert!(!vault.freelancer_approved_release);
+}
+
+// ── Test 30: request_release — non-client cannot request ─────────────────────
+
+#[test]
+fn test_request_release_unauthorized() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &1_000);
+    contract.deposit_funds(&vault_id, &client_addr);
+    contract.submit_deliverable(
+        &vault_id,
+        &freelancer_addr,
+        &String::from_str(&env, "https://proof.com"),
+    );
+
+    // Freelancer tries to request release — should fail
+    let result = contract.try_request_release(&vault_id, &freelancer_addr);
+    assert!(
+        result.is_err(),
+        "Non-client should not be able to request release"
+    );
+}
+
+// ── Test 31: request_release — wrong status fails ────────────────────────────
+
+#[test]
+fn test_request_release_wrong_status() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    // Vault in Created status — not InReview
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &1_000);
+
+    let result = contract.try_request_release(&vault_id, &client_addr);
+    assert!(
+        result.is_err(),
+        "Cannot request release on non-InReview vault"
+    );
+}
+
+// ── Test 32: approve_release — freelancer approves, both approved → funds released ──
+
+#[test]
+fn test_approve_release_both_approved_releases_funds() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &1_000);
+    contract.deposit_funds(&vault_id, &client_addr);
+    contract.submit_deliverable(
+        &vault_id,
+        &freelancer_addr,
+        &String::from_str(&env, "https://proof.com"),
+    );
+
+    // Client requests release
+    contract.request_release(&vault_id, &client_addr);
+
+    // Freelancer approves
+    contract.approve_release(&vault_id, &freelancer_addr);
+
+    let vault = contract.get_vault(&vault_id);
+    assert_eq!(vault.status, VaultStatus::Completed);
+    assert!(vault.client_approved_release);
+    assert!(vault.freelancer_approved_release);
+}
+
+// ── Test 33: approve_release — client also approves, releases funds ──────────
+
+#[test]
+fn test_approve_release_client_approves_releases_funds() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &1_000);
+    contract.deposit_funds(&vault_id, &client_addr);
+    contract.submit_deliverable(
+        &vault_id,
+        &freelancer_addr,
+        &String::from_str(&env, "https://proof.com"),
+    );
+
+    // Client requests release (sets PendingRelease + client_approved_release)
+    contract.request_release(&vault_id, &client_addr);
+
+    // Freelancer approves first
+    contract.approve_release(&vault_id, &freelancer_addr);
+
+    // Both approved — vault should be Completed
+    let vault = contract.get_vault(&vault_id);
+    assert_eq!(vault.status, VaultStatus::Completed);
+}
+
+// ── Test 34: approve_release — double-approve by same party fails ────────────
+
+#[test]
+fn test_approve_release_double_approve_fails() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &1_000);
+    contract.deposit_funds(&vault_id, &client_addr);
+    contract.submit_deliverable(
+        &vault_id,
+        &freelancer_addr,
+        &String::from_str(&env, "https://proof.com"),
+    );
+
+    contract.request_release(&vault_id, &client_addr);
+
+    // Freelancer approves
+    contract.approve_release(&vault_id, &freelancer_addr);
+
+    // Freelancer tries to approve again — should fail
+    let result = contract.try_approve_release(&vault_id, &freelancer_addr);
+    assert!(result.is_err(), "Double approve should fail");
+}
+
+// ── Test 35: approve_release — wrong status fails ────────────────────────────
+
+#[test]
+fn test_approve_release_wrong_status() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &1_000);
+    contract.deposit_funds(&vault_id, &client_addr);
+    contract.submit_deliverable(
+        &vault_id,
+        &freelancer_addr,
+        &String::from_str(&env, "https://proof.com"),
+    );
+
+    // Vault is InReview, not PendingRelease
+    let result = contract.try_approve_release(&vault_id, &freelancer_addr);
+    assert!(
+        result.is_err(),
+        "Cannot approve release on non-PendingRelease vault"
+    );
+}
+
+// ── Test 36: approve_release — unauthorized party fails ──────────────────────
+
+#[test]
+fn test_approve_release_unauthorized() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &1_000);
+    contract.deposit_funds(&vault_id, &client_addr);
+    contract.submit_deliverable(
+        &vault_id,
+        &freelancer_addr,
+        &String::from_str(&env, "https://proof.com"),
+    );
+
+    contract.request_release(&vault_id, &client_addr);
+
+    // Third party tries to approve — should fail
+    let third_party = Address::generate(&env);
+    let result = contract.try_approve_release(&vault_id, &third_party);
+    assert!(
+        result.is_err(),
+        "Third party should not be able to approve release"
+    );
+}
+
+// ── Test 37: request_release — already PendingRelease fails ──────────────────
+
+#[test]
+fn test_request_release_already_pending() {
+    let env = setup_env();
+    let client_addr = Address::generate(&env);
+    let freelancer_addr = Address::generate(&env);
+    let admin = Address::generate(&env);
+    let token_addr = setup_token(&env, &admin, &client_addr, 5_000);
+
+    let (_, contract) = setup_contract(&env);
+
+    let vault_id = contract.create_vault(&client_addr, &freelancer_addr, &token_addr, &1_000);
+    contract.deposit_funds(&vault_id, &client_addr);
+    contract.submit_deliverable(
+        &vault_id,
+        &freelancer_addr,
+        &String::from_str(&env, "https://proof.com"),
+    );
+
+    contract.request_release(&vault_id, &client_addr);
+
+    // Client tries to request again — should fail
+    let result = contract.try_request_release(&vault_id, &client_addr);
+    assert!(result.is_err(), "Double request_release should fail");
+}

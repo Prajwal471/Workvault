@@ -7,6 +7,7 @@ import { TxStage } from "@/lib/stellar";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { TxStepper } from "@/components/ui/TxStepper";
+import { NETWORK_NAME } from "@/lib/network";
 
 interface MilestoneRow {
   description: string;
@@ -185,7 +186,7 @@ export function SetMilestonesForm({ vaultId, vaultAmountXLM, onSuccess, onError 
             marginTop: "auto", transition: "opacity 0.2s",
           }}
         >
-          {isSubmitting ? "Setting milestones…" : "Set Milestones on Testnet"}
+          {isSubmitting ? "Setting milestones…" : `Set Milestones on ${NETWORK_NAME}`}
         </button>
       </form>
 

@@ -8,6 +8,7 @@ import { DepositFundsForm } from "@/components/DepositFundsForm";
 import { VaultList } from "@/components/VaultList";
 import { ToastContainer, useToast } from "@/components/ui/Toast";
 import { Icon } from "@/components/ui/Icon";
+import { NETWORK_NAME } from "@/lib/network";
 
 const card: React.CSSProperties = {
   borderRadius: 20,
@@ -37,7 +38,7 @@ export default function ClientPage() {
   const notifyPending = (s: TxStage) => {
     if (s !== "broadcast" || pendingToastShown.current) return;
     pendingToastShown.current = true;
-    addToast("info", "Transaction Pending", "Broadcasting on Stellar Testnet…");
+    addToast("info", "Transaction Pending", `Broadcasting on Stellar ${NETWORK_NAME}…`);
   };
   const resetPending = () => { pendingToastShown.current = false; };
 

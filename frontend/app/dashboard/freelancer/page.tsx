@@ -5,6 +5,7 @@ import { TxStage } from "@/lib/stellar";
 import { SubmitDeliverableForm } from "@/components/SubmitDeliverableForm";
 import { VaultList } from "@/components/VaultList";
 import { ToastContainer, useToast } from "@/components/ui/Toast";
+import { NETWORK_NAME } from "@/lib/network";
 
 function SectionDivider({ label }: { label: string }) {
   return (
@@ -26,7 +27,7 @@ export default function FreelancerPage() {
   const notifyPending = (s: TxStage) => {
     if (s !== "broadcast" || pendingToastShown.current) return;
     pendingToastShown.current = true;
-    addToast("info", "Transaction Pending", "Broadcasting on Stellar Testnet…");
+    addToast("info", "Transaction Pending", `Broadcasting on Stellar ${NETWORK_NAME}…`);
   };
   const resetPending = () => { pendingToastShown.current = false; };
 

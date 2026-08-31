@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { useWallet } from "@/context/WalletContext";
 import { Icon } from "@/components/ui/Icon";
+import { NETWORK_NAME } from "@/lib/network";
 
 interface WalletPickerProps {
   open: boolean;
@@ -281,7 +282,7 @@ export function WalletPicker({ open, onClose, tone = "dark" }: WalletPickerProps
 
         {/* Footer */}
         <p style={{ fontSize: 11, color: t.footer, textAlign: "center", margin: 0, lineHeight: 1.5 }}>
-          Testnet only · Auto-funded via Friendbot on connect
+          {NETWORK_NAME} only · Auto-funded via Friendbot on connect
         </p>
       </div>
     </div>

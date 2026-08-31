@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { EXPLORER_NETWORK } from "@/lib/network";
 
 export type ToastType = "success" | "error" | "info" | "warning";
 
@@ -74,7 +75,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
         )}
         {toast.hash && (
           <a
-            href={`https://stellar.expert/explorer/testnet/tx/${toast.hash}`}
+            href={`https://stellar.expert/explorer/${EXPLORER_NETWORK}/tx/${toast.hash}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs font-mono underline opacity-70 hover:opacity-100 mt-1 block truncate"

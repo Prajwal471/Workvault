@@ -37,6 +37,7 @@ export type VaultStatus =
   | "Created"
   | "Funded"
   | "InReview"
+  | "PendingRelease"
   | "Completed"
   | "Cancelled"
   | "Disputed";
@@ -50,6 +51,8 @@ export interface VaultInfo {
   status: VaultStatus;
   proofUrl: string;
   milestones: MilestoneInfo[];
+  clientApprovedRelease: boolean;
+  freelancerApprovedRelease: boolean;
 }
 
 export type MilestoneStatus = "Pending" | "Submitted" | "Approved" | "Disputed";
@@ -69,6 +72,7 @@ const VAULT_STATUS_NAMES: VaultStatus[] = [
   "Created",
   "Funded",
   "InReview",
+  "PendingRelease",
   "Completed",
   "Cancelled",
   "Disputed",
@@ -305,6 +309,8 @@ export async function getVault(vaultId: bigint): Promise<VaultInfo | null> {
       status: statusFromScVal(native.status),
       proofUrl: native.proof_url ?? "",
       milestones,
+      clientApprovedRelease: Boolean(native.client_approved_release),
+      freelancerApprovedRelease: Boolean(native.freelancer_approved_release),
     };
   } catch {
     return null;
@@ -400,6 +406,46 @@ export async function approveAndRelease(
     [
       nativeToScVal(vaultId, { type: "u64" }),
       new Address(clientPublicKey).toScVal(),
+    ],
+    undefined,
+    onStage
+  );
+}
+
+/**
+ * Client requests release — sets vault to PendingRelease.
+ */
+export async function requestRelease(
+  clientPublicKey: string,
+  vaultId: bigint,
+  onStage?: (stage: TxStage) => void
+): Promise<ContractCallResult> {
+  return invokeContract(
+    clientPublicKey,
+    "request_release",
+    [
+      nativeToScVal(vaultId, { type: "u64" }),
+      new Address(clientPublicKey).toScVal(),
+    ],
+    undefined,
+    onStage
+  );
+}
+
+/**
+ * Either party approves release. When both approve, funds are released.
+ */
+export async function approveRelease(
+  callerPublicKey: string,
+  vaultId: bigint,
+  onStage?: (stage: TxStage) => void
+): Promise<ContractCallResult> {
+  return invokeContract(
+    callerPublicKey,
+    "approve_release",
+    [
+      nativeToScVal(vaultId, { type: "u64" }),
+      new Address(callerPublicKey).toScVal(),
     ],
     undefined,
     onStage

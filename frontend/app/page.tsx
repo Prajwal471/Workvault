@@ -10,6 +10,7 @@ import { SealMark } from "@/components/landing/SealMark";
 import { DialRule } from "@/components/landing/DialRule";
 import { BrandMark } from "@/components/landing/BrandMark";
 import { VaultPassbookCard } from "@/components/landing/VaultPassbookCard";
+import { NETWORK_NAME, EXPLORER_NETWORK } from "@/lib/network";
 import "./landing.css";
 
 // Real on-chain proof (see README)
@@ -76,7 +77,7 @@ export default function LandingPage() {
           display: "flex", alignItems: "center",
           justifyContent: "space-between",
         }}>
-          <Logo variant="brand" size={40} tagline="Testnet" />
+          <Logo variant="brand" size={40} tagline={NETWORK_NAME} />
 
           {connected ? (
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
@@ -167,7 +168,7 @@ export default function LandingPage() {
             </div>
 
             <p className="ledger-mono" style={{ fontSize: 12, color: "var(--muted)", margin: 0 }}>
-              Freighter · xBull · Albedo · Rabet — Stellar Testnet, auto-funded on connect
+              Freighter · xBull · Albedo · Rabet — Stellar {NETWORK_NAME}, auto-funded on connect
             </p>
           </div>
 
@@ -286,14 +287,14 @@ export default function LandingPage() {
 
                 <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginTop: 4 }}>
                   <a
-                    href={`https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}`}
+                    href={`https://stellar.expert/explorer/${EXPLORER_NETWORK}/contract/${CONTRACT_ID}`}
                     target="_blank" rel="noopener noreferrer"
                     style={{ color: "var(--green)", fontWeight: 700, fontSize: 14, textDecoration: "underline", textUnderlineOffset: 3 }}
                   >
                     View contract on Stellar Expert →
                   </a>
                   <a
-                    href={`https://stellar.expert/explorer/testnet/tx/${PROOF_TX}`}
+                    href={`https://stellar.expert/explorer/${EXPLORER_NETWORK}/tx/${PROOF_TX}`}
                     target="_blank" rel="noopener noreferrer"
                     style={{ color: "var(--green)", fontWeight: 700, fontSize: 14, textDecoration: "underline", textUnderlineOffset: 3 }}
                   >
@@ -330,7 +331,7 @@ export default function LandingPage() {
               Stellar Docs
             </a>
             <a
-              href={`https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}`}
+              href={`https://stellar.expert/explorer/${EXPLORER_NETWORK}/contract/${CONTRACT_ID}`}
               target="_blank" rel="noopener noreferrer"
               style={{ color: "var(--green)", fontWeight: 700, fontSize: 14 }}
             >
@@ -339,7 +340,7 @@ export default function LandingPage() {
           </div>
 
           <p className="ledger-mono" style={{ fontSize: 12, color: "var(--muted)", textAlign: "center", margin: 0 }}>
-            Stellar WorkVault · Soroban Testnet · Test XLM only — not financial advice
+            Stellar WorkVault · Soroban {NETWORK_NAME} · {NETWORK_NAME === "Mainnet" ? "Real XLM/USDC — always DYOR" : "Test XLM only — not financial advice"}
           </p>
         </div>
       </footer>

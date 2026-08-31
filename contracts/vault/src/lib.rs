@@ -46,6 +46,8 @@ impl WorkVaultContract {
             status: VaultStatus::Created,
             proof_url: String::from_str(&env, ""),
             milestones: soroban_sdk::Vec::new(&env),
+            client_approved_release: false,
+            freelancer_approved_release: false,
         };
 
         storage::write_vault(&env, &vault);
@@ -336,6 +338,89 @@ impl WorkVaultContract {
             (symbol_short!("vault"), symbol_short!("done")),
             (vault_id, vault.freelancer, vault.amount),
         );
+
+        Ok(())
+    }
+
+    /// Client requests release — signals intent to release funds.
+    /// Sets status to PendingRelease and marks client approval.
+    /// Emits: ("vault", "release_req") → (vault_id, caller)
+    pub fn request_release(env: Env, vault_id: u64, client: Address) -> Result<(), ContractError> {
+        client.require_auth();
+
+        let mut vault = storage::read_vault(&env, vault_id)?;
+
+        if vault.client != client {
+            return Err(ContractError::Unauthorized);
+        }
+
+        if vault.status != VaultStatus::InReview {
+            return Err(ContractError::InvalidStatus);
+        }
+
+        vault.client_approved_release = true;
+        vault.status = VaultStatus::PendingRelease;
+        storage::write_vault(&env, &vault);
+
+        env.events().publish(
+            (symbol_short!("vault"), symbol_short!("rel_req")),
+            (vault_id, client),
+        );
+
+        Ok(())
+    }
+
+    /// Either party approves release. When both have approved, funds are released.
+    /// Emits: ("vault", "release_appr") → (vault_id, caller) or ("vault", "done") → (vault_id, amount)
+    pub fn approve_release(env: Env, vault_id: u64, caller: Address) -> Result<(), ContractError> {
+        caller.require_auth();
+
+        let mut vault = storage::read_vault(&env, vault_id)?;
+
+        if vault.client != caller && vault.freelancer != caller {
+            return Err(ContractError::Unauthorized);
+        }
+
+        if vault.status != VaultStatus::PendingRelease {
+            return Err(ContractError::InvalidStatus);
+        }
+
+        if vault.client == caller {
+            if vault.client_approved_release {
+                return Err(ContractError::AlreadyApproved);
+            }
+            vault.client_approved_release = true;
+        } else {
+            if vault.freelancer_approved_release {
+                return Err(ContractError::AlreadyApproved);
+            }
+            vault.freelancer_approved_release = true;
+        }
+
+        storage::write_vault(&env, &vault);
+
+        env.events().publish(
+            (symbol_short!("vault"), symbol_short!("rel_appr")),
+            (vault_id, caller),
+        );
+
+        // Check if both parties have approved
+        if vault.client_approved_release && vault.freelancer_approved_release {
+            let token_client = token::Client::new(&env, &vault.token);
+            token_client.transfer(
+                &env.current_contract_address(),
+                &vault.freelancer,
+                &vault.amount,
+            );
+
+            vault.status = VaultStatus::Completed;
+            storage::write_vault(&env, &vault);
+
+            env.events().publish(
+                (symbol_short!("vault"), symbol_short!("done")),
+                (vault_id, vault.amount),
+            );
+        }
 
         Ok(())
     }

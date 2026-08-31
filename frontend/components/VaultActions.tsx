@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useWallet } from "@/context/WalletContext";
 import { useRole } from "@/context/RoleContext";
-import { VaultInfo, depositFunds, approveAndRelease, raiseDispute, refund } from "@/lib/contracts";
+import { VaultInfo, depositFunds, requestRelease, approveRelease, approveAndRelease, raiseDispute, refund } from "@/lib/contracts";
 
 interface VaultActionsProps {
   vault: VaultInfo;
@@ -51,12 +51,24 @@ export function VaultActions({ vault, onAction }: VaultActionsProps) {
     }
     if (vault.status === "InReview") {
       actions.push({
-        label: "Approve & Release",
+        label: "Request Release",
+        action: "request_release",
+        fn: () => requestRelease(wallet.publicKey, vault.id),
+      });
+      actions.push({
+        label: "Approve & Release (Legacy)",
         action: "approve",
         fn: () => approveAndRelease(wallet.publicKey, vault.id),
       });
     }
-    if (vault.status === "Funded" || vault.status === "InReview") {
+    if (vault.status === "PendingRelease" && !vault.clientApprovedRelease) {
+      actions.push({
+        label: "Approve Release",
+        action: "approve_release",
+        fn: () => approveRelease(wallet.publicKey, vault.id),
+      });
+    }
+    if (vault.status === "Funded" || vault.status === "InReview" || vault.status === "PendingRelease") {
       actions.push({
         label: "Raise Dispute",
         action: "dispute",
@@ -75,7 +87,14 @@ export function VaultActions({ vault, onAction }: VaultActionsProps) {
   }
 
   if (isFreelancer) {
-    if (vault.status === "Funded" || vault.status === "InReview") {
+    if (vault.status === "PendingRelease" && !vault.freelancerApprovedRelease) {
+      actions.push({
+        label: "Approve Release",
+        action: "approve_release",
+        fn: () => approveRelease(wallet.publicKey, vault.id),
+      });
+    }
+    if (vault.status === "Funded" || vault.status === "InReview" || vault.status === "PendingRelease") {
       actions.push({
         label: "Raise Dispute",
         action: "dispute",

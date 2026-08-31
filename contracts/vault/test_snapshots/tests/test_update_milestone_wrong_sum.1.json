@@ -393,10 +393,26 @@
                   },
                   {
                     "key": {
+                      "symbol": "client_approved_release"
+                    },
+                    "val": {
+                      "bool": false
+                    }
+                  },
+                  {
+                    "key": {
                       "symbol": "freelancer"
                     },
                     "val": {
                       "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "freelancer_approved_release"
+                    },
+                    "val": {
+                      "bool": false
                     }
                   },
                   {

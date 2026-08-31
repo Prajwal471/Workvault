@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { TxStepper } from "@/components/ui/TxStepper";
+import { NETWORK_NAME, EXPLORER_NETWORK } from "@/lib/network";
 
 const NATIVE_TOKEN_TESTNET = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";
 
@@ -142,7 +143,7 @@ export function CreateVaultForm({ onSuccess, onError, onStage }: CreateVaultForm
               <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
             </svg>
           )}
-          {isSubmitting ? "Creating vault…" : "Create Vault on Testnet"}
+          {isSubmitting ? "Creating vault…" : `Create Vault on ${NETWORK_NAME}`}
         </button>
       </form>
 
@@ -166,7 +167,7 @@ export function CreateVaultForm({ onSuccess, onError, onStage }: CreateVaultForm
                   <span className="ledger-mono" style={{ color: "var(--muted-soft)", flexShrink: 0, marginTop: 1 }}>Tx:</span>
                   <a
                     id="vault-tx-hash-link"
-                    href={`https://stellar.expert/explorer/testnet/tx/${result.hash}`}
+                    href={`https://stellar.expert/explorer/${EXPLORER_NETWORK}/tx/${result.hash}`}
                     target="_blank" rel="noopener noreferrer"
                     style={{ color: "var(--green)", fontFamily: "var(--font-mono)", wordBreak: "break-all", textDecoration: "underline" }}
                   >

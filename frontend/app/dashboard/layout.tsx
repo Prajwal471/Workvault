@@ -8,6 +8,7 @@ import { useRole, UserRole } from "@/context/RoleContext";
 import { WalletBar } from "@/components/WalletBar";
 import { Logo } from "@/components/Logo";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { NETWORK_NAME } from "@/lib/network";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { ToastContainer, useToast } from "@/components/ui/Toast";
 
@@ -172,7 +173,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 width: 6, height: 6, borderRadius: "50%", background: "#7fbf9d",
                 display: "inline-block", boxShadow: "0 0 6px #7fbf9d",
               }} />
-              Testnet
+              {NETWORK_NAME}
             </span>
           </div>
         </div>
@@ -267,7 +268,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   background: "rgba(244,239,230,0.06)", border: "1px solid rgba(244,239,230,0.14)",
                   color: "#a8b8a6",
                 }}>
-                  Stellar Testnet
+                  Stellar {NETWORK_NAME}
                 </span>
               </div>
               <button

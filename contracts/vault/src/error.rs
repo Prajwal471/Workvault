@@ -28,4 +28,8 @@ pub enum ContractError {
     NoMilestones = 10,
     /// Dispute reason is required (non-empty string).
     DisputeReasonRequired = 11,
+    /// Caller already approved release — cannot approve twice.
+    AlreadyApproved = 12,
+    /// Vault must have both parties' approval before release.
+    NotAllApproved = 13,
 }

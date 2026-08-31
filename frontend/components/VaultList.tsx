@@ -128,6 +128,26 @@ export function VaultList({ onAction }: VaultListProps) {
                       </a>
                     </div>
                   )}
+                  {v.status === "PendingRelease" && (
+                    <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 999,
+                        background: v.clientApprovedRelease ? "#e7f2ec" : "#fbf3f0",
+                        border: `1px solid ${v.clientApprovedRelease ? "rgba(28,51,40,0.5)" : "#e3c7c0"}`,
+                        color: v.clientApprovedRelease ? "#1c3328" : "#8a3a2a",
+                      }}>
+                        Client {v.clientApprovedRelease ? "✓" : "…"}
+                      </span>
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 999,
+                        background: v.freelancerApprovedRelease ? "#e7f2ec" : "#fbf3f0",
+                        border: `1px solid ${v.freelancerApprovedRelease ? "rgba(28,51,40,0.5)" : "#e3c7c0"}`,
+                        color: v.freelancerApprovedRelease ? "#1c3328" : "#8a3a2a",
+                      }}>
+                        Freelancer {v.freelancerApprovedRelease ? "✓" : "…"}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <VaultActions vault={v} onAction={onAction} />
               </div>

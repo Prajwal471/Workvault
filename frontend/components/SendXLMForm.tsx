@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { TxStepper } from "@/components/ui/TxStepper";
+import { EXPLORER_NETWORK } from "@/lib/network";
 
 interface SendXLMFormProps {
   onSuccess?: (hash: string) => void;
@@ -153,7 +154,7 @@ export function SendXLMForm({ onSuccess, onError, onStage }: SendXLMFormProps) {
               <span className="ledger-mono" style={{ color: "var(--muted-soft)", flexShrink: 0, marginTop: 1 }}>Tx:</span>
               <a
                 id="tx-hash-link"
-                href={`https://stellar.expert/explorer/testnet/tx/${txHash}`}
+                href={`https://stellar.expert/explorer/${EXPLORER_NETWORK}/tx/${txHash}`}
                 target="_blank" rel="noopener noreferrer"
                 style={{ color: "var(--green)", fontFamily: "var(--font-mono)", wordBreak: "break-all", textDecoration: "underline" }}
               >

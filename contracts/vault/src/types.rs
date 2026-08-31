@@ -10,6 +10,8 @@ pub enum VaultStatus {
     Funded,
     /// Freelancer submitted deliverables; awaiting client approval.
     InReview,
+    /// Both parties have requested/approved release; funds pending transfer.
+    PendingRelease,
     /// All milestones approved, funds released.
     Completed,
     /// Vault cancelled before funding.
@@ -59,4 +61,8 @@ pub struct VaultInfo {
     pub proof_url: String,
     /// Milestones for this vault (empty = single-deliverable mode).
     pub milestones: soroban_sdk::Vec<Milestone>,
+    /// Client has approved release (multi-sig).
+    pub client_approved_release: bool,
+    /// Freelancer has approved release (multi-sig).
+    pub freelancer_approved_release: bool,
 }

@@ -5,6 +5,7 @@ import { fetchVaultEvents, VaultEvent, VaultEventType } from "@/lib/events";
 import { useWallet } from "@/context/WalletContext";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon, IconName } from "@/components/ui/Icon";
+import { EXPLORER_NETWORK } from "@/lib/network";
 
 const POLL_MS = 6000;
 
@@ -187,7 +188,7 @@ export function ActivityFeed({ onOpenVault, highlightKey }: ActivityFeedProps) {
 
                 {/* Ledger link */}
                 <a
-                  href={`https://stellar.expert/explorer/testnet/ledger/${ev.ledger}`}
+                  href={`https://stellar.expert/explorer/${EXPLORER_NETWORK}/ledger/${ev.ledger}`}
                   target="_blank" rel="noopener noreferrer"
                   onClick={e => e.stopPropagation()}
                   style={{ fontSize: 11, color: "var(--muted)", textDecoration: "none", flexShrink: 0 }}

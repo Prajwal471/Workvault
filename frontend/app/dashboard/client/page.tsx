@@ -8,7 +8,7 @@ import { DepositFundsForm } from "@/components/DepositFundsForm";
 import { VaultList } from "@/components/VaultList";
 import { ToastContainer, useToast } from "@/components/ui/Toast";
 import { Icon } from "@/components/ui/Icon";
-import { NETWORK_NAME } from "@/lib/network";
+import { useNetwork } from "@/lib/useNetwork";
 
 const card: React.CSSProperties = {
   borderRadius: 20,
@@ -33,12 +33,13 @@ function SectionDivider({ label }: { label: string }) {
 
 export default function ClientPage() {
   const { toasts, addToast, dismiss } = useToast();
+  const { network } = useNetwork();
   const pendingToastShown = useRef(false);
 
   const notifyPending = (s: TxStage) => {
     if (s !== "broadcast" || pendingToastShown.current) return;
     pendingToastShown.current = true;
-    addToast("info", "Transaction Pending", `Broadcasting on Stellar ${NETWORK_NAME}…`);
+    addToast("info", "Transaction Pending", `Broadcasting on Stellar ${network.name}…`);
   };
   const resetPending = () => { pendingToastShown.current = false; };
 

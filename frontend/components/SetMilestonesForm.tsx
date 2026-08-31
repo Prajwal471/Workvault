@@ -7,7 +7,7 @@ import { TxStage } from "@/lib/stellar";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { TxStepper } from "@/components/ui/TxStepper";
-import { NETWORK_NAME } from "@/lib/network";
+import { useNetwork } from "@/lib/useNetwork";
 
 interface MilestoneRow {
   description: string;
@@ -23,6 +23,7 @@ interface SetMilestonesFormProps {
 
 export function SetMilestonesForm({ vaultId, vaultAmountXLM, onSuccess, onError }: SetMilestonesFormProps) {
   const { wallet } = useWallet();
+  const { network } = useNetwork();
 
   const [milestones, setMilestones_] = useState<MilestoneRow[]>([
     { description: "", amountXLM: "" },
@@ -186,7 +187,7 @@ export function SetMilestonesForm({ vaultId, vaultAmountXLM, onSuccess, onError 
             marginTop: "auto", transition: "opacity 0.2s",
           }}
         >
-          {isSubmitting ? "Setting milestones…" : `Set Milestones on ${NETWORK_NAME}`}
+          {isSubmitting ? "Setting milestones…" : `Set Milestones on ${network.name}`}
         </button>
       </form>
 

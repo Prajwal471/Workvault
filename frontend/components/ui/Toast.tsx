@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { EXPLORER_NETWORK } from "@/lib/network";
+import { useNetwork } from "@/lib/useNetwork";
 
 export type ToastType = "success" | "error" | "info" | "warning";
 
@@ -43,6 +43,7 @@ interface ToastItemProps {
 
 function ToastItem({ toast, onDismiss }: ToastItemProps) {
   const [visible, setVisible] = useState(false);
+  const { network } = useNetwork();
 
   useEffect(() => {
     // Animate in
@@ -75,7 +76,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
         )}
         {toast.hash && (
           <a
-            href={`https://stellar.expert/explorer/${EXPLORER_NETWORK}/tx/${toast.hash}`}
+            href={`https://stellar.expert/explorer/${network.explorer}/tx/${toast.hash}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs font-mono underline opacity-70 hover:opacity-100 mt-1 block truncate"

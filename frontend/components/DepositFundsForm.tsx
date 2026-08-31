@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { TxStepper } from "@/components/ui/TxStepper";
-import { EXPLORER_NETWORK } from "@/lib/network";
+import { useNetwork } from "@/lib/useNetwork";
 
 interface DepositFundsFormProps {
   onSuccess?: (hash: string) => void;
@@ -22,6 +22,7 @@ const STROOP = 10_000_000n;
 
 export function DepositFundsForm({ onSuccess, onError, onStage }: DepositFundsFormProps) {
   const { wallet, refreshBalance } = useWallet();
+  const { network } = useNetwork();
 
   const [vaultIdInput, setVaultIdInput] = useState("");
   const [vault, setVault]               = useState<VaultInfo | null>(null);
@@ -292,7 +293,7 @@ export function DepositFundsForm({ onSuccess, onError, onStage }: DepositFundsFo
               <span className="ledger-mono" style={{ color: "var(--muted-soft)", flexShrink: 0, marginTop: 1 }}>Tx:</span>
               <a
                 id="deposit-tx-hash-link"
-                href={`https://stellar.expert/explorer/${EXPLORER_NETWORK}/tx/${txHash}`}
+                href={`https://stellar.expert/explorer/${network.explorer}/tx/${txHash}`}
                 target="_blank" rel="noopener noreferrer"
                 style={{ color: "var(--green)", fontFamily: "var(--font-mono)", wordBreak: "break-all", textDecoration: "underline" }}
               >

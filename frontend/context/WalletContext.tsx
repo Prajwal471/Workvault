@@ -18,6 +18,7 @@ import { connectXBull, isXBullInstalled, signWithXBull } from "@/lib/xbull";
 import { connectAlbedo, isAlbedoAvailable, signWithAlbedo } from "@/lib/albedo";
 import { connectRabet, isRabetInstalled, signWithRabet } from "@/lib/rabet";
 import { fetchXLMBalance } from "@/lib/stellar";
+import { networkFromPassphrase, NetworkInfo, deploymentNetwork } from "@/lib/network";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -43,6 +44,10 @@ export interface WalletContextValue {
   /** Rolling samples (last ~30) of XLM balance, one per poll, newest last. */
   balanceHistory: number[];
   networkPassphrase: string;
+  /** Network of the *connected wallet* (derived from networkPassphrase). */
+  walletNetwork: NetworkInfo;
+  /** True if wallet network !== the deployment's configured network. */
+  networkMismatch: boolean;
   isConnecting: boolean;
   isRefreshingBalance: boolean;
   // Per-wallet availability flags
@@ -190,7 +195,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     }
     const pk = result.publicKey!;
     if (result.networkPassphrase) setNetworkPassphrase(result.networkPassphrase);
-    await friendbotFund(pk);
+    // Friendbot only exists on Testnet — skip auto-funding on Mainnet.
+    if (networkFromPassphrase(result.networkPassphrase ?? process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE ?? "").isTestnet) {
+      await friendbotFund(pk);
+    }
     setWallet({ publicKey: pk, mode, displayKey: shortenKey(pk) });
     try { sessionStorage.setItem(SESSION_CONNECTED_KEY, "1"); } catch {}
     try { localStorage.setItem(WALLET_PERSIST_KEY, JSON.stringify({ publicKey: pk, mode })); } catch {}
@@ -244,6 +252,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   const clearError = useCallback(() => setError(null), []);
 
+  // Effective network surfaced to the UI: the connected wallet's network, else
+  // the deployment's configured network.
+  const walletNetwork: NetworkInfo = networkFromPassphrase(networkPassphrase);
+  const networkMismatch = networkFromPassphrase(networkPassphrase).isTestnet !== deploymentNetwork.isTestnet;
+
   /** Routes signing to whichever wallet is connected. */
   const signTransaction = useCallback(
     async (xdr: string, netPassphrase: string): Promise<SignResult> => {
@@ -259,7 +272,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <WalletContext.Provider value={{
-      wallet, walletReady, balance, balanceHistory, networkPassphrase,
+      wallet, walletReady, balance, balanceHistory, networkPassphrase, walletNetwork, networkMismatch,
       isConnecting, isRefreshingBalance,
       freighterInstalled, xbullInstalled, albedoAvailable, rabetInstalled,
       error,

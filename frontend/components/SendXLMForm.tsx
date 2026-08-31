@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { TxStepper } from "@/components/ui/TxStepper";
-import { EXPLORER_NETWORK } from "@/lib/network";
+import { useNetwork } from "@/lib/useNetwork";
 
 interface SendXLMFormProps {
   onSuccess?: (hash: string) => void;
@@ -27,6 +27,7 @@ const stateLabel: Record<TxState, string> = {
 
 export function SendXLMForm({ onSuccess, onError, onStage }: SendXLMFormProps) {
   const { wallet, networkPassphrase, refreshBalance } = useWallet();
+  const { network } = useNetwork();
 
   const [destination, setDestination] = useState("");
   const [amount, setAmount]           = useState("");
@@ -154,7 +155,7 @@ export function SendXLMForm({ onSuccess, onError, onStage }: SendXLMFormProps) {
               <span className="ledger-mono" style={{ color: "var(--muted-soft)", flexShrink: 0, marginTop: 1 }}>Tx:</span>
               <a
                 id="tx-hash-link"
-                href={`https://stellar.expert/explorer/${EXPLORER_NETWORK}/tx/${txHash}`}
+                href={`https://stellar.expert/explorer/${network.explorer}/tx/${txHash}`}
                 target="_blank" rel="noopener noreferrer"
                 style={{ color: "var(--green)", fontFamily: "var(--font-mono)", wordBreak: "break-all", textDecoration: "underline" }}
               >

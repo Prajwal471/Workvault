@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useWallet } from "@/context/WalletContext";
 import { Icon } from "@/components/ui/Icon";
-import { NETWORK_NAME } from "@/lib/network";
+import { useNetwork } from "@/lib/useNetwork";
 
 interface WalletPickerProps {
   open: boolean;
@@ -34,6 +34,7 @@ export function WalletPicker({ open, onClose, tone = "dark" }: WalletPickerProps
     connectAlbedoWallet,
     connectRabetWallet,
   } = useWallet();
+  const { network } = useNetwork();
 
   // Close once a wallet has successfully connected.
   useEffect(() => {
@@ -282,7 +283,7 @@ export function WalletPicker({ open, onClose, tone = "dark" }: WalletPickerProps
 
         {/* Footer */}
         <p style={{ fontSize: 11, color: t.footer, textAlign: "center", margin: 0, lineHeight: 1.5 }}>
-          {NETWORK_NAME} only · Auto-funded via Friendbot on connect
+          {network.name} only · {network.isTestnet ? "Auto-funded via Friendbot on connect" : "Mainnet — no Friendbot"}
         </p>
       </div>
     </div>

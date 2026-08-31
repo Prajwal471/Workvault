@@ -5,7 +5,7 @@ import { TxStage } from "@/lib/stellar";
 import { SubmitDeliverableForm } from "@/components/SubmitDeliverableForm";
 import { VaultList } from "@/components/VaultList";
 import { ToastContainer, useToast } from "@/components/ui/Toast";
-import { NETWORK_NAME } from "@/lib/network";
+import { useNetwork } from "@/lib/useNetwork";
 
 function SectionDivider({ label }: { label: string }) {
   return (
@@ -22,12 +22,13 @@ function SectionDivider({ label }: { label: string }) {
 
 export default function FreelancerPage() {
   const { toasts, addToast, dismiss } = useToast();
+  const { network } = useNetwork();
   const pendingToastShown = useRef(false);
 
   const notifyPending = (s: TxStage) => {
     if (s !== "broadcast" || pendingToastShown.current) return;
     pendingToastShown.current = true;
-    addToast("info", "Transaction Pending", `Broadcasting on Stellar ${NETWORK_NAME}…`);
+    addToast("info", "Transaction Pending", `Broadcasting on Stellar ${network.name}…`);
   };
   const resetPending = () => { pendingToastShown.current = false; };
 

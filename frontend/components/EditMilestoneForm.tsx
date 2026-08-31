@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { TxStepper } from "@/components/ui/TxStepper";
-import { EXPLORER_NETWORK } from "@/lib/network";
+import { useNetwork } from "@/lib/useNetwork";
 
 interface EditMilestoneFormProps {
   vaultId: bigint;
@@ -22,6 +22,7 @@ interface EditMilestoneFormProps {
 
 export function EditMilestoneForm({ vaultId, milestone, vaultTotalAmount, onSuccess, onError, onStage, onCancel }: EditMilestoneFormProps) {
   const { wallet } = useWallet();
+  const { network } = useNetwork();
   const [description, setDescription] = useState(milestone.description);
   const [amountXLM, setAmountXLM] = useState((Number(milestone.amount) / 10_000_000).toString());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -139,7 +140,7 @@ export function EditMilestoneForm({ vaultId, milestone, vaultTotalAmount, onSucc
                 <div style={{ fontSize: 11, display: "flex", gap: 6, alignItems: "flex-start" }}>
                   <span className="ledger-mono" style={{ color: "var(--muted-soft)", flexShrink: 0, marginTop: 1 }}>Tx:</span>
                   <a
-                    href={`https://stellar.expert/explorer/${EXPLORER_NETWORK}/tx/${result.hash}`}
+                    href={`https://stellar.expert/explorer/${network.explorer}/tx/${result.hash}`}
                     target="_blank" rel="noopener noreferrer"
                     style={{ color: "var(--green)", fontFamily: "var(--font-mono)", wordBreak: "break-all", textDecoration: "underline" }}
                   >

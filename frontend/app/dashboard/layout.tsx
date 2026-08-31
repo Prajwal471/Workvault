@@ -8,7 +8,8 @@ import { useRole, UserRole } from "@/context/RoleContext";
 import { WalletBar } from "@/components/WalletBar";
 import { Logo } from "@/components/Logo";
 import { ActivityFeed } from "@/components/ActivityFeed";
-import { NETWORK_NAME } from "@/lib/network";
+import { useNetwork } from "@/lib/useNetwork";
+import { NetworkMismatchBanner } from "@/components/NetworkMismatchBanner";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { ToastContainer, useToast } from "@/components/ui/Toast";
 
@@ -19,6 +20,7 @@ const ROLE_OPTIONS: { role: UserRole; label: string; desc: string }[] = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { wallet, walletReady, balance, balanceHistory, isRefreshingBalance, refreshBalance } = useWallet();
+  const { network } = useNetwork();
   const { role, roleReady, setRole } = useRole();
   const pathname = usePathname();
   const router = useRouter();
@@ -173,7 +175,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 width: 6, height: 6, borderRadius: "50%", background: "#7fbf9d",
                 display: "inline-block", boxShadow: "0 0 6px #7fbf9d",
               }} />
-              {NETWORK_NAME}
+              {network.name}
             </span>
           </div>
         </div>
@@ -187,6 +189,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }}>
         {/* Wallet bar */}
         <WalletBar />
+
+        {/* Network mismatch warning */}
+        <NetworkMismatchBanner />
 
         {/* Balance card */}
         <div id="balance-card" style={{
@@ -268,7 +273,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   background: "rgba(244,239,230,0.06)", border: "1px solid rgba(244,239,230,0.14)",
                   color: "#a8b8a6",
                 }}>
-                  Stellar {NETWORK_NAME}
+                  Stellar {network.name}
                 </span>
               </div>
               <button

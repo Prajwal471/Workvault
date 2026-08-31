@@ -2,10 +2,10 @@
 /**
  * mainnet-farm.js — Create N vaults on Stellar to demonstrate real adoption.
  *
- * ⚠️  MAINNET: This moves REAL XLM/USDC. Only run when you have:
+ * ⚠️  MAINNET: This moves REAL XLM. Only run when you have:
  *   1. A mainnet Stellar account funded with real XLM
  *   2. The correct MAINNET contract ID (see README)
- *   3. Buy XLM on an exchange and withdraw to the deployer wallet first
+ *   3. Buy XLM on an exchange and withdraw to the funder wallet first
  *
  * Purpose: Generate on-chain vault activity as proof for L6 "20+ mainnet
  * users" requirement. Each vault is created between a fresh (funded) client
@@ -17,23 +17,21 @@
  *
  * Config via env vars:
  *   FUNDER_SECRET — secret key of wallet funding everyone (YOUR money)
- *   CONTRACT_ID  — mainnet contract address
- *   COUNT        — number of vaults to create (default 20)
- *   AMOUNT_XLM   — deposit per vault (default 1)
+ *   CONTRACT_ID   — mainnet contract address
+ *   COUNT         — number of vaults to create (default 20)
+ *   AMOUNT_XLM    — deposit per vault (default 1)
  */
 
 const {
   Keypair,
-  Horizon,  // eslint-disable-line no-unused-vars
-  Server,
-  SorobanRpc,
+  Asset,
+  Operation,
   TransactionBuilder,
   Networks,
-  Asset,
-  BASE_FEE,
-  Operation,
+  rpc,
+  Horizon,
   nativeToScVal,
-  Address,
+  scValToNative,
   Contract,
 } = require("@stellar/stellar-sdk");
 
@@ -56,16 +54,19 @@ if (!CONTRACT_ID) {
 }
 
 const stroops = Math.round(AMOUNT_XLM * 10_000_000);
+// XLM native SAC (Stellar Asset Contract) address on Mainnet.
+const NATIVE_SAC = Asset.native().contractId(NETWORK);
 
 async function main() {
   const funder = Keypair.fromSecret(FUNDER_SECRET);
-  const server = new SorobanRpc.Server(RPC_URL);
-  const horizon = new (require("@stellar/stellar-sdk").Horizon)(HORIZON_URL);
+  const soroban = new rpc.Server(RPC_URL);
+  const horizon = new Horizon.Server(HORIZON_URL);
   const contract = new Contract(CONTRACT_ID);
 
   console.log(`Funding wallet: ${funder.publicKey()}`);
   console.log(`Creating ${COUNT} vaults with ${AMOUNT_XLM} XLM each...`);
-  console.log(`Contract: ${CONTRACT_ID}\n`);
+  console.log(`Contract: ${CONTRACT_ID}`);
+  console.log(`XLM SAC token: ${NATIVE_SAC}\n`);
 
   const results = [];
 
@@ -78,37 +79,41 @@ async function main() {
     console.log(`  Freelancer: ${freelancer.publicKey()}`);
 
     try {
-      // 1. Fund client via XLM payment from funder
-      await fundAccount(horizon, funder, client.publicKey());
-      await fundAccount(horizon, funder, freelancer.publicKey());
+      // 1. Fund client + freelancer with XLM via classic Horizon payment
+      await fundAccount(horizon, funder, client.publicKey(), AMOUNT_XLM);
+      await fundAccount(horizon, funder, freelancer.publicKey(), 1);
       console.log("  ▸ Funded client + freelancer with XLM");
 
-      // Wait for accounts to be visible on RPC
-      await waitForAccount(server, client.publicKey());
+      // 2. Wait for accounts to be visible on the Soroban RPC
+      await waitForAccount(soroban, client.publicKey());
 
-      // 2. Client creates vault
-      const createTx = await buildTx(server, client.publicKey(), [
+      // 3. Client creates vault
+      const createTx = await buildTx(soroban, client.publicKey(), [
         contract.call(
           "create_vault",
           nativeToScVal(client.publicKey(), { type: "address" }),
           nativeToScVal(freelancer.publicKey(), { type: "address" }),
-          nativeToScVal(Asset.native().contractId(NETWORK), { type: "address" }),
+          nativeToScVal(NATIVE_SAC, { type: "address" }),
           nativeToScVal(stroops, { type: "i128" }),
         ),
       ]);
-      const vaultId = await sendTx(server, createTx, client);
+      const vaultId = await sendTx(soroban, createTx, client);
       console.log(`  ▸ Created vault #${vaultId}`);
 
-      // 3. Client funds vault
-      const fundTx = await buildTx(server, client.publicKey(), [
-        contract.call("deposit_funds", nativeToScVal(vaultId, { type: "u64" }), nativeToScVal(client.publicKey(), { type: "address" })),
+      // 4. Client funds vault
+      const fundTx = await buildTx(soroban, client.publicKey(), [
+        contract.call(
+          "deposit_funds",
+          nativeToScVal(vaultId, { type: "u64" }),
+          nativeToScVal(client.publicKey(), { type: "address" }),
+        ),
       ]);
-      await sendTx(server, fundTx, client);
+      await sendTx(soroban, fundTx, client);
       console.log(`  ▸ Deposited ${AMOUNT_XLM} XLM`);
 
-      // 4. Freelancer submits deliverable
+      // 5. Freelancer submits deliverable
       const proofUrl = `https://github.com/Prajwal471/Workvault/demo/${i + 1}`;
-      const submitTx = await buildTx(server, freelancer.publicKey(), [
+      const submitTx = await buildTx(soroban, freelancer.publicKey(), [
         contract.call(
           "submit_deliverable",
           nativeToScVal(vaultId, { type: "u64" }),
@@ -116,7 +121,7 @@ async function main() {
           nativeToScVal(proofUrl, { type: "string" }),
         ),
       ]);
-      await sendTx(server, submitTx, freelancer);
+      await sendTx(soroban, submitTx, freelancer);
       console.log(`  ▸ Submitted deliverable`);
 
       results.push({ vault: vaultId, client: client.publicKey(), freelancer: freelancer.publicKey(), status: "InReview" });
@@ -136,21 +141,20 @@ async function main() {
   console.log(`\nWallet addresses for README proof:`);
   results.forEach(r => console.log(`  Vault ${r.vault}: client=${r.client} freelancer=${r.freelancer} status=${r.status}`));
 
-  // Write proof to file
   require("fs").writeFileSync("mainnet-farm-results.json", JSON.stringify(results, null, 2));
   console.log(`\nSaved results to mainnet-farm-results.json`);
 }
 
-/** Send XLM to fund an account from the funder. */
-async function fundAccount(horizon, funder, dest) {
+/** Fund an account with `amount` XLM via a classic payment from the funder. */
+async function fundAccount(horizon, funder, dest, amount) {
   const account = await horizon.loadAccount(funder.publicKey());
   const tx = new TransactionBuilder(account, {
-    fee: BASE_FEE, networkPassphrase: NETWORK,
+    fee: "100", networkPassphrase: NETWORK,
   })
     .addOperation(Operation.payment({
       destination: dest,
       asset: Asset.native(),
-      amount: AMOUNT_XLM.toFixed(7),
+      amount: amount.toFixed(7),
     }))
     .setTimeout(60)
     .build();
@@ -158,7 +162,7 @@ async function fundAccount(horizon, funder, dest) {
   await horizon.submitTransaction(tx);
 }
 
-/** Poll RPC until an account is visible (it may lag horizon by a few seconds). */
+/** Poll RPC until an account is visible (RPC may lag Horizon by a few seconds). */
 async function waitForAccount(server, pubKey, attempts = 10) {
   for (let i = 0; i < attempts; i++) {
     try {
@@ -171,36 +175,38 @@ async function waitForAccount(server, pubKey, attempts = 10) {
   throw new Error(`Account ${pubKey} not visible on RPC after retries`);
 }
 
-/** Build + simulate a Soroban transaction for the given ops. */
+/** Build + simulate a Soroban transaction for the given contract ops. */
 async function buildTx(server, source, ops) {
   const account = await server.getAccount(source);
   const tx = new TransactionBuilder(account, {
-    fee: BASE_FEE, networkPassphrase: NETWORK,
+    fee: "100", networkPassphrase: NETWORK,
   })
     .addOperation(...ops)
     .setTimeout(60)
     .build();
-  const prepared = await server.prepareTransaction(tx);
-  return prepared;
+  return server.prepareTransaction(tx);
 }
 
-/** Sign + submit a prepared Soroban transaction, return parsed result. */
+/**
+ * Sign + submit a prepared Soroban transaction, poll for success, and return
+ * the decoded return value (e.g. the vault u64 number).
+ */
 async function sendTx(server, tx, signer) {
   tx.sign(signer);
-  const res = await server.sendTransaction(tx);
-  if (res.status === "PENDING") {
-    // Poll for fulfillment
-    for (let i = 0; i < 10; i++) {
-      await new Promise(r => setTimeout(r, 3000));
-      const t = await server.getTransaction(res.hash);
-      if (t.status === "SUCCESS") {
-        return t.result ?? null;
-      }
-      if (t.status === "FAILED") throw new Error("Transaction FAILED on ledger");
-    }
-    throw new Error("Transaction timed out");
+  const submit = await server.sendTransaction(tx);
+  if (submit.status !== "PENDING") {
+    throw new Error(`Submit failed: ${submit.errorResult?.result?.message ?? submit.status}`);
   }
-  throw new Error(`Submit failed: ${res.errorResult ?? res.status}`);
+  for (let i = 0; i < 12; i++) {
+    await new Promise(r => setTimeout(r, 3000));
+    const r = await server.getTransaction(submit.hash);
+    if (r.status === "SUCCESS") {
+      // Post-submission Soroban return value is exposed as `returnValue`.
+      return r.returnValue ? scValToNative(r.returnValue) : null;
+    }
+    if (r.status === "FAILED") throw new Error("Transaction FAILED on ledger");
+  }
+  throw new Error("Transaction timed out");
 }
 
 main().catch(err => {
